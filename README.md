@@ -160,47 +160,51 @@ Pipeline complet
 ✅ Modèle final
     Random Forest optimisé — F1 = 0.9616
     Modèles testés et Résultats
-    Résultats initiaux
-    
-Modèle	Accuracy	Precision	Recall	F1-Score	F1 Classe 0
-🔵 Logistic Regression	0.9346	0.9703	0.9498	0.9600	0.82
-🟢 Decision Tree	0.9218	0.9552	0.9498	0.9525	0.78 ⚠️
-🟠 Random Forest	0.9321	0.9719	0.9451	0.9583	0.82
-Cross-Validation (cv=3)
-Modèle	F1 Moyen	Écart-type	Verdict
-🔵 Logistic Regression	0.9597	0.0005	🥇 Ultra stable
-🟠 Random Forest	0.9601	0.0017	🥈 Stable
-🟢 Decision Tree	0.9490	0.0012	🥉 Acceptable
-Après optimisation GridSearch / RandomizedSearch
-Modèle	Meilleurs Paramètres	F1 Avant	F1 Après	Gain
-🔵 Logistic Regression	C=10, solver='lbfgs'	0.9600	0.9604	+0.0004
-🟢 Decision Tree	criterion='entropy', max_depth=5	0.9525	0.9597	+0.0072 ✅
-🟠 Random Forest	n_estimators=100, max_depth=10, max_features='log2'	0.9583	0.9616	+0.0033 
+   ### 📊 Résultats initiaux
+
+| Modèle | Accuracy | Precision | Recall | F1-Score | F1 Classe 0 |
+|--------|----------|-----------|--------|-----------|--------------|
+| 🔵 Logistic Regression | 0.9346 | 0.9703 | 0.9498 | 0.9600 | 0.82 |
+| 🟢 Decision Tree | 0.9218 | 0.9552 | 0.9498 | 0.9525 | 0.78 ⚠️ |
+| 🟠 Random Forest | 0.9321 | 0.9719 | 0.9451 | 0.9583 | 0.82 |
+
+### 🔁 Cross-Validation (cv=3)
+
+| Modèle | F1 Moyen | Écart-type | Verdict |
+|--------|----------|------------|---------|
+| 🔵 Logistic Regression | 0.9597 | 0.0005 | 🥇 Ultra stable |
+| 🟠 Random Forest | 0.9601 | 0.0017 | 🥈 Stable |
+| 🟢 Decision Tree | 0.9490 | 0.0012 | 🥉 Acceptable |
+
+### 🔧 Après optimisation GridSearch / RandomizedSearch
+
+| Modèle | Meilleurs Paramètres | F1 Avant | F1 Après | Gain |
+|--------|----------------------|----------|----------|------|
+| 🔵 Logistic Regression | C=10, solver='lbfgs' | 0.9600 | 0.9604 | +0.0004 |
+| 🟢 Decision Tree | criterion='entropy', max_depth=5 | 0.9525 | 0.9597 | +0.0072 ✅ |
+| 🟠 Random Forest | n_estimators=100, max_depth=10, max_features='log2' | 0.9583 | 0.9616 | +0.0033 🏆 |
+
 <div align="center">
- Modèle Final : Random Forest Optimisé
-✅ F1-Score	✅ Accuracy	✅ F1 Classe 0	✅ F1 CV Moyen
-0.9616	0.9375	0.82	0.9609
+
+### 🏆 Modèle Final : Random Forest Optimisé
+
+| ✅ F1-Score | ✅ Accuracy | ✅ F1 Classe 0 | ✅ F1 CV Moyen |
+|-------------|-------------|----------------|----------------|
+| 0.9616 | 0.9375 | 0.82 | 0.9609 |
+
 </div>
-Explicabilité SHAP
-SHAP (SHapley Additive exPlanations) explique pourquoi le modèle prédit chaque valeur — variable par variable.
 
-Visualisations produites :
-📊 Summary Plot (bar) — importance globale de chaque variable
+### 🔝 Top variables — Scores SHAP
 
-🐝 Beeswarm Plot (dot) — distribution de l'impact sur toutes les prédictions
-
-💧 Waterfall Plot — explication détaillée d'une prédiction individuelle
-
-🔝 Top variables — Scores SHAP
-Rang	Variable	Score SHAP	Interprétation
-🥇 1	Rating	0.1907	Domine massivement — 6× plus important que le suivant
-🥈 2	polarity	0.0309	✅ Feature Engineering NLP validé
-🥉 3	subjectivity	0.0090	Contribue légèrement
-4	Positive Feedback Count	0.0056	Faible mais réel
-5	review_length	0.0048	Faible mais réel
-6	Age	0.0047	Quasi nul
-7–10	Class · Division · Dept	< 0.003	Négligeable
-💡 Insight clé : La corrélation détectée en exploration (Rating = 0.79) est confirmée scientifiquement par SHAP (score = 0.1907). Les features NLP polarity et subjectivity se révèlent utiles — notre Feature Engineering est validé !
+| Rang | Variable | Score SHAP | Interprétation |
+|:----:|----------|------------|----------------|
+| 🥇 1 | Rating | 0.1907 | Domine massivement — 6× plus important que le suivant |
+| 🥈 2 | polarity | 0.0309 | ✅ Feature Engineering NLP validé |
+| 🥉 3 | subjectivity | 0.0090 | Contribue légèrement |
+| 4 | Positive Feedback Count | 0.0056 | Faible mais réel |
+| 5 | review_length | 0.0048 | Faible mais réel |
+| 6 | Age | 0.0047 | Quasi nul |
+| 7–10 | Class · Division · Dept | < 0.003 | Négligeable |
 
 ✅ Conclusion
 Ce projet a permis de construire un pipeline Machine Learning complet pour prédire la recommandation de produits e-commerce avec une accuracy finale de 93.75%.
