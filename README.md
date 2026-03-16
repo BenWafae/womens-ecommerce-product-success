@@ -206,30 +206,39 @@ Pipeline complet
 | 6 | Age | 0.0047 | Quasi nul |
 | 7–10 | Class · Division · Dept | < 0.003 | Négligeable |
 
-✅ Conclusion
-Ce projet a permis de construire un pipeline Machine Learning complet pour prédire la recommandation de produits e-commerce avec une accuracy finale de 93.75%.
+## ✅ Conclusion
 
-Points clés à retenir :
-📊 Rating = variable dominante confirmée par SHAP (score = 0.1907, corrélation = 0.79)
+Ce projet a permis de construire un pipeline Machine Learning complet pour prédire la recommandation de produits e-commerce avec une **accuracy finale de 93.75%**.
 
-🧪 Feature Engineering NLP validé — polarity en 2ème position SHAP
+---
 
-🌳 Random Forest optimisé = meilleur modèle final (F1 = 0.9616)
+### 📌 Points clés à retenir
 
-🔁 Cross-validation confirme la fiabilité (écart-type < 0.002)
+| | Élément | Description |
+|---|---------|-------------|
+| 📊 | **Rating** | Variable dominante confirmée par SHAP (score = 0.1907, corrélation = 0.79) |
+| 🧪 | **Feature Engineering NLP** | Validé — `polarity` en 2ème position SHAP |
+| 🌳 | **Random Forest optimisé** | Meilleur modèle final (F1 = 0.9616) |
+| 🔁 | **Cross-validation** | Confirme la fiabilité (écart-type < 0.002) |
+| ⚖️ | **Déséquilibre 82%/18%** | Bien géré grâce à `stratify=y` |
+| 🔧 | **GridSearchCV** | Améliore significativement le Decision Tree (+0.0072) |
 
-⚖️ Déséquilibre 82%/18% bien géré grâce à stratify=y
+---
 
-🔧 GridSearchCV améliore significativement le Decision Tree (+0.0072)
-Application métier :
-Ce modèle permet à une entreprise e-commerce d'anticiper la popularité d'un produit avant même d'analyser manuellement les avis clients.
+### 🏪 Application métier
 
-<div align="center"> <hr>
-Mini-projet réalisé dans le cadre du cours de Machine Learning — BSDSI 2025-2026
+> Ce modèle permet à une entreprise e-commerce d'anticiper la popularité d'un produit **avant même d'analyser manuellement les avis clients**.
 
+---
 
-BEN ZHIR Wafa · IKSOD Salma
-Encadré par AIT BAHA Tarek
+<div align="center">
+<hr>
 
-</div> ```
+**Mini-projet réalisé dans le cadre du cours de Machine Learning — BSDSI 2025-2026**
 
+<br>
+
+**BEN ZHIR Wafa · IKSOD Salma**  
+*Encadré par AIT BAHA Tarek*
+
+</div>
