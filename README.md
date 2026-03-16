@@ -1,244 +1,100 @@
-<div align="center">
-<img src="https://img.shields.io/badge/Python-3.10+-7B68EE?style=for-the-badge&logo=python&logoColor=white"/>
-<img src="https://img.shields.io/badge/Scikit--Learn-ML-534AB7?style=for-the-badge&logo=scikit-learn&logoColor=white"/>
-<img src="https://img.shields.io/badge/NLP-TextBlob-1B7F3E?style=for-the-badge"/>
-<img src="https://img.shields.io/badge/SHAP-Explicabilité_IA-A0522D?style=for-the-badge"/>
-<img src="https://img.shields.io/badge/Status-Complet-success?style=for-the-badge"/>
-</div>
+Prédiction du succès des produits e-commerce
 
-<div align="center">
-<h1>🛍️ Prédiction du Succès des Produits E-Commerce</h1>
-<p><i>Women's Clothing Reviews — Classification Binaire avec Explicabilité IA</i></p>
+Pipeline ML complet de classification binaire sur les avis clients — du prétraitement NLP jusqu'à l'explicabilité SHAP.
 
-<br>
-<b>👩‍💻 BEN ZHIR Wafa & IKSOD Salma</b><br>
-<b>👨‍🏫 Encadré par : AIT BAHA Tarek</b><br>
-<b>BSDSI - Année 2025-2026</b>
-<br><br>
+Show Image Show Image Show Image Show Image
+BSDSI · 2025–2026 | BEN ZHIR Wafa & IKSOD Salma | Encadré par AIT BAHA Tarek
 
-<p>Prédire si un produit sera recommandé ou non, à partir des avis clients et de leurs caractéristiques — du prétraitement jusqu'à l'explicabilité IA.</p>
-</div>
+Problème traité
+Prédire si un produit sera recommandé ou non (Recommended IND) à partir des avis et caractéristiques clients.
+ÉlémentDétailTypeClassification binaireVariable cibleRecommended IND (0 ou 1)Déséquilibre82% recommandés · 18% non recommandésDatasetWomen's E-Commerce Clothing Reviews — KaggleTaille23 486 avis · 11 colonnes
 
----
-
-## 📌 Table des Matières
-- [✨ Points clés du projet](#-points-clés-du-projet)
-- [🎯 Problème traité et Dataset](#-problème-traité-et-dataset)
-- [📁 Structure du projet](#-structure-du-projet)
-- [⚙️ Installation et Exécution](#️-installation-et-exécution)
-- [🔬 Pipeline complet](#-pipeline-complet)
-- [🤖 Modèles testés et Résultats](#-modèles-testés-et-résultats)
-- [🧠 Explicabilité SHAP](#-explicabilité-shap)
-- [✅ Conclusion](#-conclusion)
-
----
-
-## ✨ Points clés du projet
-
-Un pipeline Machine Learning complet et professionnel — de l'exploration des données jusqu'à l'explicabilité IA.
-
-| Étape | Description |
-|-------|-------------|
-| 🔍 **Exploration** | Analyse approfondie avec visualisations et corrélations |
-| 🧹 **Prétraitement** | Gestion des valeurs manquantes, outliers IQR, encodage, normalisation |
-| ⚙️ **Feature Engineering NLP** | Polarité, subjectivité et longueur des avis via TextBlob |
-| 🤖 **3 modèles ML** | Logistic Regression, Decision Tree, Random Forest |
-| ⚖️ **Gestion du déséquilibre** | `stratify=y` + `class_weight='balanced'` |
-| 🔁 **Cross-Validation** | cv=3 pour fiabilité et stabilité |
-| 🔧 **Optimisation** | GridSearchCV / RandomizedSearchCV |
-| 🧠 **Explicabilité SHAP** | Summary Plot, Beeswarm Plot, Waterfall Plot |
-
----
-
-## 🎯 Problème traité et Dataset
-
-### Le problème
-
-**Objectif :** Prédire si un produit sera recommandé ou non (`Recommended IND`) à partir des avis et caractéristiques des produits.
-
-| Élément | Détail |
-|---------|--------|
-| **Type de problème** | Classification binaire |
-| **Variable cible** | `Recommended IND` |
-| **Classe 1** | ✅ Produit recommandé |
-| **Classe 0** | ❌ Produit non recommandé |
-| **Déséquilibre** | 82% recommandés · 18% non recommandés |
-
-### Le dataset
-
-🔗 **Source :** [Women's E-Commerce Clothing Reviews — Kaggle](https://www.kaggle.com/datasets/nicapotato/womens-ecommerce-clothing-reviews)
-
-23 486 avis clients sur des vêtements vendus sur une plateforme e-commerce.
-
-| Colonne | Type | Description |
-|---------|------|-------------|
-| `Clothing ID` | Numérique | Identifiant unique du produit |
-| `Age` | Numérique | Âge de la cliente |
-| `Title` | Texte | Titre de l'avis |
-| `Review Text` | Texte | Contenu complet de l'avis |
-| `Rating` | Numérique | Note du produit ⭐ (1 à 5) |
-| `Recommended IND` | Binaire | ⚡ **Variable cible** (0 ou 1) |
-| `Positive Feedback Count` | Numérique | Nombre de feedbacks positifs |
-| `Division Name` | Catégorielle | Division du magasin |
-| `Department Name` | Catégorielle | Département du produit |
-| `Class Name` | Catégorielle | Catégorie spécifique |
-
----
-
-## 📁 Structure du projet
+Structure du projet
 ecommerce_project/
-│
-├── 📂 data/
-│ └── Womens Clothing E-Commerce Reviews.csv
-│
-├── 📓 notebook.ipynb # Notebook principal (tout le projet)
-│
-├── 📄 README.md # Ce fichier
-│
-└── 📋 requirements.txt # Dépendances Python
-## ⚙️ Installation et Exécution
+├── data/
+│   └── Womens Clothing E-Commerce Reviews.csv
+├── notebook.ipynb       # Notebook principal — tout le projet
+├── requirements.txt     # Dépendances Python
+└── README.md
 
-### 1️⃣ Cloner le repository
+Utilisation
+Ouvrir le notebook
+bash# Avec VS Code (recommandé)
+code notebook.ipynb
+# → Run All
+Dépendances
+Les bibliothèques standard (pandas, numpy, scikit-learn, matplotlib, seaborn) sont incluses dans toute installation Anaconda. Seules trois librairies supplémentaires sont nécessaires — elles sont déjà installées via des cellules dans le notebook :
+python!pip install textblob wordcloud shap
 
-```bash
-git clone https://github.com/votre-username/ecommerce-prediction.git
-cd ecommerce-prediction
-Lancer le notebook
-# Avec VS Code (recommandé)
-code .
-# → Ouvrir notebook.ipynb
-# → Cliquer Run All 
+Aucun environnement virtuel requis. Aucune configuration supplémentaire.
 
-# Ou avec Jupyter
-jupyter notebook notebook.ipynb
-Important : Adaptez le chemin du fichier CSV dans la cellule de chargement selon votre machine.
+Adapter le chemin du CSV
+Dans la cellule de chargement, ajustez le chemin selon votre machine :
+pythondf = pd.read_csv("data/Womens Clothing E-Commerce Reviews.csv")
+
 Pipeline complet
-📥 Chargement des données
-        23 486 lignes × 11 colonnes
-              ↓
-🔍 Exploration & Visualisation
-    • Statistiques descriptives
-    • Distributions (Age, Rating, Feedback)
-    • Nuages de points & corrélations
-    • Détection outliers — méthode IQR
-              ↓
-🧹 Prétraitement
-    • Suppression lignes sans Review Text
-    • Remplacement NaN : Title → "No Title"
-    • Suppression outliers Age & Feedback Count
-    • Suppression colonne index inutile
-              ↓
-⚙️ Feature Engineering NLP — TextBlob
-    • review_length  → nombre de mots
-    • polarity       → sentiment (-1 négatif → +1 positif)
-    • subjectivity   → opinion (0 objectif → 1 subjectif)
-              ↓
-🔄 Encodage & Normalisation
-    • One-Hot Encoding (Division · Department · Class)
-    • StandardScaler sur variables numériques
-              ↓
-✂️ Train / Test Split
-    80% entraînement · 20% test · stratify=y
-              ↓
-🤖 Modélisation — 3 modèles
-    • Logistic Regression  (baseline)
-    • Decision Tree
-    • Random Forest
-              ↓
-⚖️ class_weight='balanced'
-    Test correction du déséquilibre des classes
-              ↓
-🔁 Cross-Validation cv=3
-    Vérification fiabilité et stabilité
-              ↓
-🔧 Optimisation hyperparamètres
-    GridSearchCV (LR · DT) · RandomizedSearchCV (RF)
-              ↓
-🧠 Explicabilité SHAP
-    Summary Plot · Beeswarm Plot · Waterfall Plot
-              ↓
-✅ Modèle final
-    Random Forest optimisé — F1 = 0.9616
-    Modèles testés et Résultats
-   ### 📊 Résultats initiaux
+01 · Exploration & visualisation
+     Statistiques descriptives, distributions, nuages de points,
+     matrice de corrélation, détection outliers (méthode IQR)
+     ↓
+02 · Prétraitement
+     Suppression lignes sans Review Text
+     NaN Title → "No Title"
+     Suppression outliers Age & Positive Feedback Count
+     Suppression colonne index inutile
+     ↓
+03 · Feature Engineering NLP (TextBlob)
+     review_length  → nombre de mots
+     polarity       → sentiment (-1 négatif → +1 positif)
+     subjectivity   → opinion (0 objectif → 1 subjectif)
+     ↓
+04 · Encodage & normalisation
+     One-Hot Encoding (Division · Department · Class Name)
+     StandardScaler sur variables numériques
+     ↓
+05 · Train / Test split
+     80% entraînement · 20% test · stratify=y
+     ↓
+06 · Modélisation — 3 modèles
+     Logistic Regression (baseline)
+     Decision Tree
+     Random Forest
+     + class_weight='balanced' + Cross-validation cv=3
+     ↓
+07 · Optimisation hyperparamètres
+     GridSearchCV (LR · DT) · RandomizedSearchCV (RF)
+     ↓
+08 · Explicabilité SHAP
+     Summary Plot · Beeswarm Plot · Waterfall Plot · Top-10 variables
 
-| Modèle | Accuracy | Precision | Recall | F1-Score | F1 Classe 0 |
-|--------|----------|-----------|--------|-----------|--------------|
-| 🔵 Logistic Regression | 0.9346 | 0.9703 | 0.9498 | 0.9600 | 0.82 |
-| 🟢 Decision Tree | 0.9218 | 0.9552 | 0.9498 | 0.9525 | 0.78 ⚠️ |
-| 🟠 Random Forest | 0.9321 | 0.9719 | 0.9451 | 0.9583 | 0.82 |
+Résultats
+Après optimisation
+ModèleAccuracyF1F1 Classe 0F1 CV (cv=3)Logistic Regression0.93530.96040.820.9597 ±0.0005Decision Tree0.93430.9597—0.9490 ±0.0012Random Forest ★0.93750.96160.820.9609 ±0.0017
+★ Modèle final : Random Forest optimisé — n_estimators=100, max_depth=10, max_features='log2'
+Top variables SHAP
+RangVariableScore SHAPNote1Rating0.19076× plus important que le suivant2polarity0.0309Feature Engineering NLP validé3subjectivity0.0090Contribution légère4Positive Feedback Count0.0056—5review_length0.0048—
 
-### 🔁 Cross-Validation (cv=3)
+Branches Git
+bash# Initialiser le repo
+git init && git add . && git commit -m "initial commit"
 
-| Modèle | F1 Moyen | Écart-type | Verdict |
-|--------|----------|------------|---------|
-| 🔵 Logistic Regression | 0.9597 | 0.0005 | 🥇 Ultra stable |
-| 🟠 Random Forest | 0.9601 | 0.0017 | 🥈 Stable |
-| 🟢 Decision Tree | 0.9490 | 0.0012 | 🥉 Acceptable |
+# Créer les branches de chaque collaboratrice
+git branch benzhirWafa
+git branch iksodsalma
 
-### 🔧 Après optimisation GridSearch / RandomizedSearch
+# Travailler sur sa branche
+git checkout benzhirWafa     # ou iksodsalma
+git push origin benzhirWafa  # pousser vers GitHub
+Chaque membre travaille sur sa propre branche, puis fusionne vers main via une pull request.
 
-| Modèle | Meilleurs Paramètres | F1 Avant | F1 Après | Gain |
-|--------|----------------------|----------|----------|------|
-| 🔵 Logistic Regression | C=10, solver='lbfgs' | 0.9600 | 0.9604 | +0.0004 |
-| 🟢 Decision Tree | criterion='entropy', max_depth=5 | 0.9525 | 0.9597 | +0.0072 ✅ |
-| 🟠 Random Forest | n_estimators=100, max_depth=10, max_features='log2' | 0.9583 | 0.9616 | +0.0033 🏆 |
+Conclusion
+Ce projet construit un pipeline ML complet atteignant une accuracy de 93.75% sur la prédiction de recommandation produit.
 
-<div align="center">
+Rating est la variable dominante (SHAP = 0.1907, corrélation = 0.79)
+Le Feature Engineering NLP (polarity) est validé en 2e position SHAP
+La cross-validation confirme la fiabilité du modèle (écart-type < 0.002)
+Le déséquilibre 82/18 est bien géré grâce à stratify=y
 
-### 🏆 Modèle Final : Random Forest Optimisé
 
-| ✅ F1-Score | ✅ Accuracy | ✅ F1 Classe 0 | ✅ F1 CV Moyen |
-|-------------|-------------|----------------|----------------|
-| 0.9616 | 0.9375 | 0.82 | 0.9609 |
-
-</div>
-
-### 🔝 Top variables — Scores SHAP
-
-| Rang | Variable | Score SHAP | Interprétation |
-|:----:|----------|------------|----------------|
-| 🥇 1 | Rating | 0.1907 | Domine massivement — 6× plus important que le suivant |
-| 🥈 2 | polarity | 0.0309 | ✅ Feature Engineering NLP validé |
-| 🥉 3 | subjectivity | 0.0090 | Contribue légèrement |
-| 4 | Positive Feedback Count | 0.0056 | Faible mais réel |
-| 5 | review_length | 0.0048 | Faible mais réel |
-| 6 | Age | 0.0047 | Quasi nul |
-| 7–10 | Class · Division · Dept | < 0.003 | Négligeable |
-
-## ✅ Conclusion
-
-Ce projet a permis de construire un pipeline Machine Learning complet pour prédire la recommandation de produits e-commerce avec une **accuracy finale de 93.75%**.
-
----
-
-### 📌 Points clés à retenir
-
-| | Élément | Description |
-|---|---------|-------------|
-| 📊 | **Rating** | Variable dominante confirmée par SHAP (score = 0.1907, corrélation = 0.79) |
-| 🧪 | **Feature Engineering NLP** | Validé — `polarity` en 2ème position SHAP |
-| 🌳 | **Random Forest optimisé** | Meilleur modèle final (F1 = 0.9616) |
-| 🔁 | **Cross-validation** | Confirme la fiabilité (écart-type < 0.002) |
-| ⚖️ | **Déséquilibre 82%/18%** | Bien géré grâce à `stratify=y` |
-| 🔧 | **GridSearchCV** | Améliore significativement le Decision Tree (+0.0072) |
-
----
-
-### 🏪 Application métier
-
-> Ce modèle permet à une entreprise e-commerce d'anticiper la popularité d'un produit **avant même d'analyser manuellement les avis clients**.
-
----
-
-<div align="center">
-<hr>
-
-**Mini-projet réalisé dans le cadre du cours de Machine Learning — BSDSI 2025-2026**
-
-<br>
-
-**BEN ZHIR Wafa · IKSOD Salma**  
-*Encadré par AIT BAHA Tarek*
-
-</div>
+Mini-projet réalisé dans le cadre du cours de Machine Learning — BSDSI 2025–2026
+BEN ZHIR Wafa · IKSOD Salma · Encadré par AIT BAHA Tarek
