@@ -8,7 +8,7 @@
 <img src="https://img.shields.io/badge/Status-Complet-success?style=for-the-badge"/>
 <img src="https://img.shields.io/badge/Dataset-Kaggle-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white"/>
 
-# 🛍️ Prédiction du succès des produits e-commerce
+#  Prédiction du succès des produits e-commerce
 
 **Mini-projet Machine Learning — Filière BSDSI | Année universitaire 2025-2026**
 
@@ -19,7 +19,31 @@ Encadré par : **AIT BAHA Tarek**
 
 ---
 
-## 📌 Présentation du projet
+##  Description générale
+
+Ce projet a pour objectif de **prédire si un produit e-commerce sera populaire ou non** à partir du dataset *Women's E-Commerce Clothing Reviews*. Il est conçu comme un **système de prédiction intelligent**, combinant l'exploration des données, le prétraitement, l'entraînement de modèles de machine learning et une interface interactive.
+
+Le projet permet de :
+
+- Analyser les caractéristiques des produits et des avis clients
+- Construire un modèle de **classification binaire** : produit recommandé `1` ou non recommandé `0`
+- Mettre en place une application interactive pour tester les prédictions
+
+### Pourquoi ce problème ?
+
+Dans le e-commerce, anticiper la popularité d'un produit permet de :
+
+| Cas d'usage | Bénéfice |
+|---|---|
+| Gestion de stock & logistique | Éviter les ruptures ou le surstockage |
+| Campagnes marketing | Cibler les produits à fort potentiel |
+| Recommandations clients | Personnaliser l'expérience d'achat |
+
+> Le problème se formalise comme une **classification binaire** : prédire la popularité d'un produit à partir de ses caractéristiques et des avis clients.
+
+---
+
+##  Présentation du projet
 
 Prédire si un produit vestimentaire sera **recommandé ou non** par les clientes, à partir de leurs avis et des caractéristiques du produit.
 
@@ -48,7 +72,7 @@ ecommerce-prediction/
 
 ---
 
-## ⚙️ Environnement & exécution
+##  Environnement & exécution
 
 > Aucun environnement virtuel requis. Le projet tourne directement dans **VS Code** avec l'extension **Jupyter**.
 
@@ -79,7 +103,7 @@ cd ecommerce-prediction
 
 ---
 
-## 🔄 Pipeline du projet
+## Pipeline du projet
 
 ```
 Dataset brut
@@ -101,7 +125,7 @@ Explicabilité           — SHAP (importance globale + prédiction individuelle
 
 ---
 
-## 📊 Résultats des modèles
+##  Résultats des modèles
 
 ### Avant optimisation
 
@@ -117,7 +141,7 @@ Explicabilité           — SHAP (importance globale + prédiction individuelle
 |---|---|---|---|
 | Logistic Regression | 0.9353 | 0.9604 | `C=10, solver=lbfgs` |
 | Decision Tree | 0.9343 | 0.9597 | `max_depth=5, criterion=entropy` |
-| **Random Forest** ✅ | **0.9375** | **0.9616** | `n_estimators=100, max_depth=10` |
+| **Random Forest**  | **0.9375** | **0.9616** | `n_estimators=100, max_depth=10` |
 
 ### Cross-validation (cv = 3)
 
@@ -131,7 +155,7 @@ Explicabilité           — SHAP (importance globale + prédiction individuelle
 
 ---
 
-## 🧠 Feature Engineering NLP
+##  Feature Engineering NLP
 
 | Feature créée | Description | Outil |
 |---|---|---|
@@ -143,7 +167,7 @@ Explicabilité           — SHAP (importance globale + prédiction individuelle
 
 ---
 
-## 🔍 Explicabilité — SHAP
+##  Explicabilité — SHAP
 
 > Au-delà de la performance brute, SHAP permet de **comprendre pourquoi** le modèle prédit une recommandation — variable par variable, prédiction par prédiction.
 
@@ -157,7 +181,7 @@ Explicabilité           — SHAP (importance globale + prédiction individuelle
 
 ---
 
-## ⚡ Optimisation des hyperparamètres
+##  Optimisation des hyperparamètres
 
 > Les modèles par défaut ne sont pas toujours optimaux. GridSearchCV et RandomizedSearchCV testent automatiquement plusieurs combinaisons de paramètres pour trouver la meilleure configuration.
 
@@ -169,7 +193,7 @@ Explicabilité           — SHAP (importance globale + prédiction individuelle
 
 ---
 
-## 🚧 Limites & pistes d'amélioration
+##  Limites & pistes d'amélioration
 
 | Limite identifiée | Piste d'amélioration |
 |---|---|
@@ -180,7 +204,7 @@ Explicabilité           — SHAP (importance globale + prédiction individuelle
 
 ---
 
-## 🌿 Organisation Git
+##  Organisation Git
 
 | Branche | Contributrice | Profil |
 |---|---|---|
@@ -204,7 +228,7 @@ git merge origin/benzhirWafa
 
 ---
 
-## 📦 Bibliothèques utilisées
+##  Bibliothèques utilisées
 
 | Bibliothèque | Usage |
 |---|---|
