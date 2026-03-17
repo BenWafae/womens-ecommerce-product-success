@@ -1,100 +1,205 @@
-Prédiction du succès des produits e-commerce
+<div align="center">
 
-Pipeline ML complet de classification binaire sur les avis clients — du prétraitement NLP jusqu'à l'explicabilité SHAP.
+<img src="https://img.shields.io/badge/Python-3.13.9-7B68EE?style=for-the-badge&logo=python&logoColor=white"/>
+<img src="https://img.shields.io/badge/Scikit--Learn-ML-534AB7?style=for-the-badge&logo=scikit-learn&logoColor=white"/>
+<img src="https://img.shields.io/badge/NLP-TextBlob-1B7F3E?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/SHAP-Explicabilité_IA-A0522D?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/VS_Code-Notebook-0078D4?style=for-the-badge&logo=visual-studio-code&logoColor=white"/>
+<img src="https://img.shields.io/badge/Status-Complet-success?style=for-the-badge"/>
 
-Show Image Show Image Show Image Show Image
-BSDSI · 2025–2026 | BEN ZHIR Wafa & IKSOD Salma | Encadré par AIT BAHA Tarek
+# 🛍️ Prédiction du succès des produits e-commerce
 
-Problème traité
-Prédire si un produit sera recommandé ou non (Recommended IND) à partir des avis et caractéristiques clients.
-ÉlémentDétailTypeClassification binaireVariable cibleRecommended IND (0 ou 1)Déséquilibre82% recommandés · 18% non recommandésDatasetWomen's E-Commerce Clothing Reviews — KaggleTaille23 486 avis · 11 colonnes
+**Mini-projet Machine Learning — Filière BSDSI | Année universitaire 2025-2026**
 
-Structure du projet
-ecommerce_project/
+Réalisé par : **BEN ZHIR Wafa** ([BenWafae](https://github.com/BenWafae)) · **IKSOD Salma** ([salmaIKSOD](https://github.com/salmaIKSOD))  
+Encadré par : **AIT BAHA Tarek**
+
+</div>
+
+---
+
+## 📌 Présentation du projet
+
+Prédire si un produit vestimentaire sera **recommandé ou non** par les clientes, à partir de leurs avis et des caractéristiques du produit.
+
+| Élément | Détail |
+|---|---|
+| **Dataset** | Women's E-Commerce Clothing Reviews |
+| **Source** | [Kaggle — nicapotato](https://www.kaggle.com/datasets/nicapotato/womens-ecommerce-clothing-reviews) |
+| **Taille** | 23 486 avis · 11 colonnes |
+| **Type de problème** | Classification binaire |
+| **Variable cible** | `Recommended IND` — 1 = recommandé · 0 = non recommandé |
+
+---
+
+## 🗂️ Structure du dépôt
+
+```
+ecommerce-prediction/
 ├── data/
 │   └── Womens Clothing E-Commerce Reviews.csv
-├── notebook.ipynb       # Notebook principal — tout le projet
-├── requirements.txt     # Dépendances Python
+├── notebooks/
+│   └── ecommerce_project.ipynb
+├── models/
+│   └── (modèles sauvegardés via joblib)
 └── README.md
+```
 
-Utilisation
-Ouvrir le notebook
-bash# Avec VS Code (recommandé)
-code notebook.ipynb
-# → Run All
-Dépendances
-Les bibliothèques standard (pandas, numpy, scikit-learn, matplotlib, seaborn) sont incluses dans toute installation Anaconda. Seules trois librairies supplémentaires sont nécessaires — elles sont déjà installées via des cellules dans le notebook :
-python!pip install textblob wordcloud shap
+---
 
-Aucun environnement virtuel requis. Aucune configuration supplémentaire.
+## ⚙️ Environnement & exécution
 
-Adapter le chemin du CSV
-Dans la cellule de chargement, ajustez le chemin selon votre machine :
-pythondf = pd.read_csv("data/Womens Clothing E-Commerce Reviews.csv")
+> Aucun environnement virtuel requis. Le projet tourne directement dans **VS Code** avec l'extension **Jupyter**.
 
-Pipeline complet
-01 · Exploration & visualisation
-     Statistiques descriptives, distributions, nuages de points,
-     matrice de corrélation, détection outliers (méthode IQR)
-     ↓
-02 · Prétraitement
-     Suppression lignes sans Review Text
-     NaN Title → "No Title"
-     Suppression outliers Age & Positive Feedback Count
-     Suppression colonne index inutile
-     ↓
-03 · Feature Engineering NLP (TextBlob)
-     review_length  → nombre de mots
-     polarity       → sentiment (-1 négatif → +1 positif)
-     subjectivity   → opinion (0 objectif → 1 subjectif)
-     ↓
-04 · Encodage & normalisation
-     One-Hot Encoding (Division · Department · Class Name)
-     StandardScaler sur variables numériques
-     ↓
-05 · Train / Test split
-     80% entraînement · 20% test · stratify=y
-     ↓
-06 · Modélisation — 3 modèles
-     Logistic Regression (baseline)
-     Decision Tree
-     Random Forest
-     + class_weight='balanced' + Cross-validation cv=3
-     ↓
-07 · Optimisation hyperparamètres
-     GridSearchCV (LR · DT) · RandomizedSearchCV (RF)
-     ↓
-08 · Explicabilité SHAP
-     Summary Plot · Beeswarm Plot · Waterfall Plot · Top-10 variables
+### Prérequis
 
-Résultats
-Après optimisation
-ModèleAccuracyF1F1 Classe 0F1 CV (cv=3)Logistic Regression0.93530.96040.820.9597 ±0.0005Decision Tree0.93430.9597—0.9490 ±0.0012Random Forest ★0.93750.96160.820.9609 ±0.0017
-★ Modèle final : Random Forest optimisé — n_estimators=100, max_depth=10, max_features='log2'
-Top variables SHAP
-RangVariableScore SHAPNote1Rating0.19076× plus important que le suivant2polarity0.0309Feature Engineering NLP validé3subjectivity0.0090Contribution légère4Positive Feedback Count0.0056—5review_length0.0048—
+| Outil | Version / Usage |
+|---|---|
+| Python | 3.13.9 |
+| VS Code | Éditeur utilisé |
+| Extension Jupyter (VS Code) | Exécution cellule par cellule |
 
-Branches Git
-bash# Initialiser le repo
-git init && git add . && git commit -m "initial commit"
+### Installation des dépendances
 
-# Créer les branches de chaque collaboratrice
-git branch benzhirWafa
-git branch iksodsalma
+```bash
+pip install pandas numpy matplotlib seaborn scikit-learn textblob wordcloud shap lime joblib
+```
 
-# Travailler sur sa branche
-git checkout benzhirWafa     # ou iksodsalma
-git push origin benzhirWafa  # pousser vers GitHub
-Chaque membre travaille sur sa propre branche, puis fusionne vers main via une pull request.
+### Lancer le notebook
 
-Conclusion
-Ce projet construit un pipeline ML complet atteignant une accuracy de 93.75% sur la prédiction de recommandation produit.
+1. Forker le dépôt depuis GitHub
+2. Cloner votre fork en local :
+```bash
+git clone https://github.com/<votre-username>/ecommerce-prediction.git
+cd ecommerce-prediction
+```
+3. Ouvrir `notebooks/ecommerce_project.ipynb` dans VS Code
+4. Exécuter chaque cellule avec **Run** (▶) ou `Shift + Enter`
 
-Rating est la variable dominante (SHAP = 0.1907, corrélation = 0.79)
-Le Feature Engineering NLP (polarity) est validé en 2e position SHAP
-La cross-validation confirme la fiabilité du modèle (écart-type < 0.002)
-Le déséquilibre 82/18 est bien géré grâce à stratify=y
+---
 
+## 🔄 Pipeline du projet
 
-Mini-projet réalisé dans le cadre du cours de Machine Learning — BSDSI 2025–2026
-BEN ZHIR Wafa · IKSOD Salma · Encadré par AIT BAHA Tarek
+```
+Dataset brut
+    ↓
+Exploration (EDA)       — distributions, corrélations, valeurs manquantes
+    ↓
+Prétraitement           — nettoyage, outliers IQR, encodage, normalisation
+    ↓
+Feature Engineering     — longueur avis, polarité, subjectivité (TextBlob)
+    ↓
+Modélisation            — Logistic Regression · Decision Tree · Random Forest
+    ↓
+Évaluation              — accuracy, F1, matrice de confusion, cross-validation
+    ↓
+Optimisation            — GridSearchCV · RandomizedSearchCV
+    ↓
+Explicabilité           — SHAP (importance globale + prédiction individuelle)
+```
+
+---
+
+## 📊 Résultats des modèles
+
+### Avant optimisation
+
+| Modèle | Accuracy | Precision | Recall | F1-Score |
+|---|---|---|---|---|
+| Logistic Regression | 0.9346 | 0.9703 | 0.9498 | 0.9600 |
+| Decision Tree | 0.9218 | 0.9552 | 0.9498 | 0.9525 |
+| Random Forest | 0.9321 | 0.9719 | 0.9451 | 0.9583 |
+
+### Après optimisation (GridSearchCV / RandomizedSearchCV)
+
+| Modèle | Accuracy | F1-Score | Meilleurs paramètres |
+|---|---|---|---|
+| Logistic Regression | 0.9353 | 0.9604 | `C=10, solver=lbfgs` |
+| Decision Tree | 0.9343 | 0.9597 | `max_depth=5, criterion=entropy` |
+| **Random Forest** ✅ | **0.9375** | **0.9616** | `n_estimators=100, max_depth=10` |
+
+### Cross-validation (cv = 3)
+
+| Modèle | F1 moyen | Écart-type |
+|---|---|---|
+| Logistic Regression | 0.9597 | ±0.0005 |
+| Decision Tree | 0.9490 | ±0.0012 |
+| Random Forest | 0.9601 | ±0.0017 |
+
+> **Modèle retenu : Random Forest optimisé** — meilleur F1 global (0.9616) et meilleure Accuracy (0.9375).
+
+---
+
+## 🧠 Feature Engineering NLP
+
+| Feature créée | Description | Outil |
+|---|---|---|
+| `review_length` | Nombre de mots dans l'avis | Python `.split()` |
+| `polarity` | Sentiment du texte (−1 négatif → +1 positif) | TextBlob |
+| `subjectivity` | Opinion vs fait (0 objectif → 1 subjectif) | TextBlob |
+
+> SHAP confirme que `polarity` et `subjectivity` sont les 2ᵉ et 3ᵉ variables les plus influentes après `Rating`.
+
+---
+
+## 🔍 Explicabilité — SHAP
+
+> Au-delà de la performance brute, SHAP permet de **comprendre pourquoi** le modèle prédit une recommandation — variable par variable, prédiction par prédiction.
+
+| Rang | Variable | Score SHAP moyen | Interprétation |
+|---|---|---|---|
+| 1 | `Rating` | 0.1907 | Variable dominante (×6 vs le suivant) |
+| 2 | `polarity` | 0.0309 | Feature Engineering utile |
+| 3 | `subjectivity` | 0.0090 | Contribution légère |
+| 4 | `Positive Feedback Count` | 0.0056 | Faible mais réel |
+| 5 | `review_length` | 0.0048 | Faible mais réel |
+
+---
+
+## ⚡ Optimisation des hyperparamètres
+
+> Les modèles par défaut ne sont pas toujours optimaux. GridSearchCV et RandomizedSearchCV testent automatiquement plusieurs combinaisons de paramètres pour trouver la meilleure configuration.
+
+| Modèle | Méthode | Paramètres testés |
+|---|---|---|
+| Logistic Regression | GridSearchCV | `C`, `solver` |
+| Decision Tree | GridSearchCV | `max_depth`, `criterion`, `min_samples_split` |
+| Random Forest | RandomizedSearchCV | `n_estimators`, `max_depth`, `max_features` |
+
+---
+
+## 🌿 Organisation Git
+
+| Branche | Contributrice | Profil |
+|---|---|---|
+| `main` | Dépôt principal partagé | — |
+| `benzhirWafa` | BEN ZHIR Wafa | [github.com/BenWafae](https://github.com/BenWafae) |
+| `iksodsalma` | IKSOD Salma | [github.com/salmaIKSOD](https://github.com/salmaIKSOD) |
+
+### Workflow utilisé
+
+Chaque contributrice travaille sur sa branche, puis intègre les modifications via les commandes suivantes :
+
+```bash
+# Récupérer les dernières modifications du dépôt distant
+git fetch origin
+
+# Intégrer la branche de l'autre contributrice
+git merge origin/iksodsalma
+# ou
+git merge origin/benzhirWafa
+```
+
+---
+
+## 📦 Bibliothèques utilisées
+
+| Bibliothèque | Usage |
+|---|---|
+| `pandas` / `numpy` | Manipulation des données |
+| `matplotlib` / `seaborn` | Visualisation |
+| `scikit-learn` | Modélisation ML |
+| `textblob` | Analyse de sentiment NLP |
+| `wordcloud` | Visualisation textuelle |
+| `shap` | Explicabilité IA |
+| `joblib` | Sauvegarde des modèles |
