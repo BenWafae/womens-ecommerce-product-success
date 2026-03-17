@@ -6,6 +6,7 @@
 <img src="https://img.shields.io/badge/SHAP-Explicabilité_IA-A0522D?style=for-the-badge"/>
 <img src="https://img.shields.io/badge/VS_Code-Notebook-0078D4?style=for-the-badge&logo=visual-studio-code&logoColor=white"/>
 <img src="https://img.shields.io/badge/Status-Complet-success?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/Dataset-Kaggle-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white"/>
 
 # 🛍️ Prédiction du succès des produits e-commerce
 
@@ -168,6 +169,17 @@ Explicabilité           — SHAP (importance globale + prédiction individuelle
 
 ---
 
+## 🚧 Limites & pistes d'amélioration
+
+| Limite identifiée | Piste d'amélioration |
+|---|---|
+| Déséquilibre des classes (82% / 18%) | Appliquer SMOTE ou `class_weight='balanced'` |
+| Analyse textuelle basique (TextBlob) | Utiliser un modèle BERT ou TF-IDF avancé |
+| Partie non supervisée absente | Ajouter un clustering k-means par segment client |
+| Pas d'interface utilisateur | Développer une mini-app Streamlit ou Gradio |
+
+---
+
 ## 🌿 Organisation Git
 
 | Branche | Contributrice | Profil |
@@ -203,3 +215,11 @@ git merge origin/benzhirWafa
 | `wordcloud` | Visualisation textuelle |
 | `shap` | Explicabilité IA |
 | `joblib` | Sauvegarde des modèles |
+
+---
+
+<div align="center">
+
+*Projet réalisé dans le cadre du cours Systèmes Intelligents — BSDSI 2025-2026*
+
+</div>
