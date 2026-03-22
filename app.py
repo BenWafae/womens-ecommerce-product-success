@@ -124,6 +124,22 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; color: var(--te
 /* ─── Wrapper page active dans la sidebar ─── */
 .nav-active { display: block; }
 
+/* ─── Boutons feedback — discrets sous les cartes HTML ─── */
+.fb-btn > div > button {
+  background: transparent !important;
+  border: 1px solid rgba(42,42,62,0.5) !important;
+  color: #4B5563 !important;
+  font-size: 0.72em !important;
+  padding: 4px 10px !important;
+  font-weight: 400 !important;
+  box-shadow: none !important;
+  min-height: unset !important;
+  height: auto !important;
+  letter-spacing: 0 !important;
+  margin-top: 2px !important;
+  border-radius: 6px !important;
+}
+
 .sec-title { font-family: 'Playfair Display', serif; font-size: 1.9em; font-weight: 700; color: #fff; margin: 0 0 6px 0; }
 .sec-sub   { color: var(--muted); font-size: 0.9em; margin-bottom: 24px; line-height: 1.6; }
 
@@ -1474,9 +1490,62 @@ elif PAGE == 4:
     cf, cr = st.columns([1.1, 0.9], gap="large")
 
     with cf:
+        # ── Guide de remplissage ─────────────────────────────
+        st.markdown("""
+        <div style='background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(6,182,212,0.04));
+                    border:1px solid rgba(139,92,246,0.25);border-radius:14px;
+                    padding:16px 20px;margin-bottom:16px;'>
+          <div style='font-family:"Space Mono",monospace;font-size:0.63em;color:#8B5CF6;
+                      letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;'>
+            Guide — Comment remplir ce formulaire
+          </div>
+          <div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;'>
+            <div style='display:flex;gap:8px;align-items:flex-start;'>
+              <div style='width:6px;height:6px;border-radius:50%;background:#8B5CF6;
+                          margin-top:6px;flex-shrink:0;'></div>
+              <div style='font-size:0.79em;color:#9CA3AF;line-height:1.5;'>
+                <strong style='color:#E8E8F0;'>Rating</strong> — la note que la cliente a donnée au produit (1 = très mauvais, 5 = excellent).
+                C'est le facteur le plus déterminant.
+              </div>
+            </div>
+            <div style='display:flex;gap:8px;align-items:flex-start;'>
+              <div style='width:6px;height:6px;border-radius:50%;background:#06B6D4;
+                          margin-top:6px;flex-shrink:0;'></div>
+              <div style='font-size:0.79em;color:#9CA3AF;line-height:1.5;'>
+                <strong style='color:#E8E8F0;'>Feedbacks positifs</strong> — combien d'autres clientes ont trouvé cet avis utile.
+                0 = avis ignoré, 10+ = avis influent.
+              </div>
+            </div>
+            <div style='display:flex;gap:8px;align-items:flex-start;'>
+              <div style='width:6px;height:6px;border-radius:50%;background:#10B981;
+                          margin-top:6px;flex-shrink:0;'></div>
+              <div style='font-size:0.79em;color:#9CA3AF;line-height:1.5;'>
+                <strong style='color:#E8E8F0;'>Avis client</strong> — le texte de l'avis.
+                Un avis long et positif ("love", "perfect", "great") → prédit Recommandé.
+                Un avis court et négatif ("bad", "return", "ugly") → prédit Non Recommandé.
+              </div>
+            </div>
+            <div style='display:flex;gap:8px;align-items:flex-start;'>
+              <div style='width:6px;height:6px;border-radius:50%;background:#F59E0B;
+                          margin-top:6px;flex-shrink:0;'></div>
+              <div style='font-size:0.79em;color:#9CA3AF;line-height:1.5;'>
+                <strong style='color:#E8E8F0;'>Âge / Division / Département</strong> — infos démographiques et catégorie produit.
+                Impact faible mais pris en compte par le modèle.
+              </div>
+            </div>
+          </div>
+          <div style='margin-top:12px;padding:10px 12px;background:rgba(0,0,0,0.2);
+                      border-radius:8px;font-size:0.78em;color:#6B7280;line-height:1.6;'>
+            Exemple de prédiction <strong style='color:#10B981;'>Recommandé</strong> :
+            Rating = 5, avis "I absolutely love this dress, it fits perfectly and the quality is amazing", Feedback = 12<br>
+            Exemple de prédiction <strong style='color:#EF4444;'>Non Recommandé</strong> :
+            Rating = 1, avis "Terrible quality, returned immediately, very disappointed", Feedback = 0
+          </div>
+        </div>""", unsafe_allow_html=True)
+
         st.markdown("<div class='card'>", unsafe_allow_html=True)
         st.markdown("""<div style='font-family:"Space Mono",monospace;font-size:0.68em;
-                    color:#8B5CF6;letter-spacing:1px;margin-bottom:20px;'>INFORMATIONS DU PRODUIT</div>""",
+                    color:#8B5CF6;letter-spacing:1px;margin-bottom:20px;'>SAISIE DES DONNÉES</div>""",
                     unsafe_allow_html=True)
 
         cc1, cc2 = st.columns(2)
@@ -1487,10 +1556,10 @@ elif PAGE == 4:
                     "decision_tree":      "Arbre de Décision",
                     "random_forest":      "✦ Random Forest",
                 }[x])
-            rating = st.slider("⭐ Rating", 1.0, 5.0, 4.0, 0.5)
+            rating = st.slider("Rating (1 = mauvais → 5 = excellent)", 1.0, 5.0, 4.0, 0.5)
         with cc2:
-            feedback = st.number_input("👍 Feedbacks positifs", 0, 500, 10)
-            age      = st.number_input("👤 Âge", 18, 90, 35)
+            feedback = st.number_input("Feedbacks positifs (0 = aucun, 10+ = influent)", 0, 500, 10)
+            age      = st.number_input("Âge de la cliente", 18, 90, 35)
 
         cc3, cc4, cc5 = st.columns(3)
         with cc3:
@@ -1498,31 +1567,32 @@ elif PAGE == 4:
         with cc4:
             department = st.selectbox("Département", ["Tops","Dresses","Bottoms","Intimate","Jackets","Trend"])
         with cc5:
-            class_name = st.selectbox("Classe",      ["Blouses","Dresses","Knits","Pants","Skirts","Jackets","Intimates"])
+            class_name = st.selectbox("Classe produit", ["Blouses","Dresses","Knits","Pants","Skirts","Jackets","Intimates"])
 
-        review = st.text_area("💬 Avis client",
-            placeholder="Ex: I absolutely love this dress! The fabric is so comfortable and fits perfectly...",
-            height=130)
+        review = st.text_area("Texte de l'avis client (en anglais)",
+            placeholder="Ex: I absolutely love this dress! The fabric is so comfortable and fits perfectly. Highly recommend!",
+            height=120)
 
         if review.strip():
             sl, sc, _ = sentiment_quick(review)
             wc = len(review.split())
+            sc_label = "Positif → favorise 'Recommandé'" if "Positif" in sl else ("Négatif → défavorise" if "Négatif" in sl else "Neutre → impact faible")
             st.markdown(f"""
             <div style='display:flex;gap:10px;margin:8px 0 12px 0;'>
               <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:8px;
-                          padding:8px 14px;font-size:0.8em;flex:1;text-align:center;'>
+                          padding:8px 14px;font-size:0.8em;flex:2;'>
                 <div style='color:{sc};font-weight:600;'>{sl}</div>
-                <div style='color:#6B7280;font-size:0.78em;'>Sentiment</div>
+                <div style='color:#6B7280;font-size:0.74em;margin-top:2px;'>{sc_label}</div>
               </div>
               <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:8px;
                           padding:8px 14px;font-size:0.8em;flex:1;text-align:center;'>
                 <div style='color:#8B5CF6;font-weight:600;font-family:"Space Mono",monospace;'>{wc}</div>
-                <div style='color:#6B7280;font-size:0.78em;'>Mots</div>
+                <div style='color:#6B7280;font-size:0.74em;margin-top:2px;'>mots</div>
               </div>
             </div>""", unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
-        btn = st.button("🔮  Prédire maintenant", use_container_width=True, type="primary")
+        btn = st.button("Lancer la prédiction", use_container_width=True, type="primary")
 
     with cr:
         if btn:
@@ -1601,74 +1671,110 @@ elif PAGE == 4:
                     st.session_state.history = []
                 ml = {"logistic_regression":"Logistic Reg.","decision_tree":"Dec. Tree",
                       "random_forest":"Random Forest"}[model_choice]
-                # Identifiant unique de cette prédiction pour le feedback
                 pred_id = f"pred_{len(st.session_state.history)}"
                 st.session_state.history.append({
                     "Modèle": ml, "Rating": rating, "Feedbacks": feedback,
-                    "Résultat": "✅ Populaire" if pred == 1 else "❌ Faible",
+                    "Résultat": "Recommandé" if pred == 1 else "Non Recommandé",
                     "Probabilité": f"{int(proba*100)}%",
                     "Avis": review[:35] + "..." if len(review) > 35 else review,
                     "Feedback": "—",
                 })
-                # Stocker l'id pour le widget feedback
                 st.session_state["current_pred_id"] = len(st.session_state.history) - 1
 
-                # ── Bloc feedback utilisateur ─────────────────
+                # ── Feedback utilisateur ──────────────────────
                 st.markdown("""
-                <div style='background:linear-gradient(135deg,rgba(139,92,246,0.07),rgba(6,182,212,0.04));
-                            border:1px solid rgba(139,92,246,0.25);border-radius:14px;
-                            padding:20px 22px;margin-top:16px;'>
-                  <div style='font-family:"Space Mono",monospace;font-size:0.65em;color:#8B5CF6;
-                              letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;'>
+                <div style='margin-top:18px;padding:18px 20px;
+                            background:linear-gradient(135deg,rgba(139,92,246,0.06),rgba(6,182,212,0.03));
+                            border:1px solid rgba(139,92,246,0.2);border-radius:14px;'>
+                  <div style='font-family:"Space Mono",monospace;font-size:0.62em;color:#8B5CF6;
+                              letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;'>
                     Retour utilisateur
                   </div>
-                  <div style='font-size:0.9em;color:#E8E8F0;font-weight:600;margin-bottom:14px;'>
+                  <div style='font-size:0.88em;color:#E8E8F0;font-weight:600;margin-bottom:14px;'>
                     Cette prédiction était-elle correcte ?
                   </div>
                 </div>""", unsafe_allow_html=True)
 
-                fb_col1, fb_col2, fb_col3 = st.columns([1, 1, 2])
+                fb_col1, fb_col2 = st.columns(2)
                 with fb_col1:
-                    if st.button("👍  Oui, correcte", key=f"fb_yes_{pred_id}", use_container_width=True):
+                    st.markdown("""
+                    <div style='background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.05));
+                                border:1.5px solid rgba(16,185,129,0.4);border-radius:12px;
+                                padding:14px 16px;text-align:center;margin-bottom:6px;
+                                transition:all 0.2s ease;cursor:pointer;'>
+                      <div style='font-size:1.6em;margin-bottom:4px;'>👍</div>
+                      <div style='font-size:0.86em;font-weight:700;color:#10B981;'>Oui, correcte</div>
+                      <div style='font-size:0.72em;color:#6B7280;margin-top:3px;'>
+                        La vraie valeur correspond
+                      </div>
+                    </div>""", unsafe_allow_html=True)
+                    st.markdown("<div class='fb-btn'>", unsafe_allow_html=True)
+                    if st.button("Confirmer — Correcte", key=f"fb_yes_{pred_id}", use_container_width=True):
                         idx = st.session_state["current_pred_id"]
-                        st.session_state.history[idx]["Feedback"] = "👍 Correcte"
+                        st.session_state.history[idx]["Feedback"] = "Correcte"
                         st.session_state["feedback_given"] = "yes"
                         st.rerun()
+                    st.markdown("</div>", unsafe_allow_html=True)
+
                 with fb_col2:
-                    if st.button("👎  Non, incorrecte", key=f"fb_no_{pred_id}", use_container_width=True):
+                    st.markdown("""
+                    <div style='background:linear-gradient(135deg,rgba(239,68,68,0.12),rgba(239,68,68,0.05));
+                                border:1.5px solid rgba(239,68,68,0.4);border-radius:12px;
+                                padding:14px 16px;text-align:center;margin-bottom:6px;
+                                transition:all 0.2s ease;cursor:pointer;'>
+                      <div style='font-size:1.6em;margin-bottom:4px;'>👎</div>
+                      <div style='font-size:0.86em;font-weight:700;color:#EF4444;'>Non, incorrecte</div>
+                      <div style='font-size:0.72em;color:#6B7280;margin-top:3px;'>
+                        Le modèle s'est trompé
+                      </div>
+                    </div>""", unsafe_allow_html=True)
+                    st.markdown("<div class='fb-btn'>", unsafe_allow_html=True)
+                    if st.button("Confirmer — Incorrecte", key=f"fb_no_{pred_id}", use_container_width=True):
                         idx = st.session_state["current_pred_id"]
-                        st.session_state.history[idx]["Feedback"] = "👎 Incorrecte"
+                        st.session_state.history[idx]["Feedback"] = "Incorrecte"
                         st.session_state["feedback_given"] = "no"
                         st.rerun()
+                    st.markdown("</div>", unsafe_allow_html=True)
 
-                # Afficher la réponse si feedback déjà donné
+                # ── Confirmation après feedback ───────────────
                 if st.session_state.get("feedback_given") == "yes":
                     st.markdown("""
-                    <div style='background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);
-                                border-radius:10px;padding:12px 16px;margin-top:8px;
-                                display:flex;align-items:center;gap:10px;'>
-                      <div style='font-size:1.4em;'>✅</div>
-                      <div>
-                        <div style='color:#10B981;font-weight:600;font-size:0.88em;'>Merci pour votre retour !</div>
-                        <div style='color:#6B7280;font-size:0.78em;margin-top:2px;'>
-                          Ce retour positif est enregistré dans l'historique.
-                          Il permettrait d'affiner le modèle lors d'un futur ré-entraînement.
+                    <div style='background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.04));
+                                border:1px solid rgba(16,185,129,0.35);border-radius:12px;
+                                padding:16px 18px;margin-top:4px;'>
+                      <div style='display:flex;align-items:center;gap:12px;margin-bottom:8px;'>
+                        <div style='width:36px;height:36px;border-radius:50%;background:rgba(16,185,129,0.15);
+                                    border:2px solid rgba(16,185,129,0.4);display:flex;align-items:center;
+                                    justify-content:center;font-size:1.1em;flex-shrink:0;'>✓</div>
+                        <div style='font-weight:700;color:#10B981;font-size:0.9em;'>
+                          Retour enregistré — Merci !
                         </div>
+                      </div>
+                      <div style='font-size:0.78em;color:#6B7280;line-height:1.6;padding-left:48px;'>
+                        La prédiction a été marquée comme <strong style='color:#6EE7B7;'>correcte</strong>
+                        dans l'historique. Ce type de validation permettrait, lors d'un futur
+                        ré-entraînement, de confirmer les cas où le modèle performe bien.
                       </div>
                     </div>""", unsafe_allow_html=True)
                     st.session_state.pop("feedback_given", None)
+
                 elif st.session_state.get("feedback_given") == "no":
                     st.markdown("""
-                    <div style='background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);
-                                border-radius:10px;padding:12px 16px;margin-top:8px;
-                                display:flex;align-items:center;gap:10px;'>
-                      <div style='font-size:1.4em;'>📝</div>
-                      <div>
-                        <div style='color:#EF4444;font-weight:600;font-size:0.88em;'>Retour négatif enregistré</div>
-                        <div style='color:#6B7280;font-size:0.78em;margin-top:2px;'>
-                          Merci ! Cette erreur de prédiction est notée dans l'historique.
-                          Accumuler ces retours permet d'identifier les cas limites du modèle.
+                    <div style='background:linear-gradient(135deg,rgba(239,68,68,0.1),rgba(239,68,68,0.04));
+                                border:1px solid rgba(239,68,68,0.35);border-radius:12px;
+                                padding:16px 18px;margin-top:4px;'>
+                      <div style='display:flex;align-items:center;gap:12px;margin-bottom:8px;'>
+                        <div style='width:36px;height:36px;border-radius:50%;background:rgba(239,68,68,0.15);
+                                    border:2px solid rgba(239,68,68,0.4);display:flex;align-items:center;
+                                    justify-content:center;font-size:1.1em;flex-shrink:0;'>✗</div>
+                        <div style='font-weight:700;color:#EF4444;font-size:0.9em;'>
+                          Erreur notée — Merci pour ce retour !
                         </div>
+                      </div>
+                      <div style='font-size:0.78em;color:#6B7280;line-height:1.6;padding-left:48px;'>
+                        La prédiction a été marquée comme <strong style='color:#FCA5A5;'>incorrecte</strong>
+                        dans l'historique. Accumuler ces cas d'erreur permet d'identifier les limites du
+                        modèle et d'orienter les prochaines améliorations (SMOTE, nouveaux features, BERT…).
                       </div>
                     </div>""", unsafe_allow_html=True)
                     st.session_state.pop("feedback_given", None)
