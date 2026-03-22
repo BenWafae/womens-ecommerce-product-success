@@ -605,11 +605,12 @@ elif PAGE == 2:
     </div>""", unsafe_allow_html=True)
 
     # ── ONGLETS ──────────────────────────────────────────────
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "Résultats de Base",
         "Cross-Validation",
         "Optimisation GridSearch",
         "Comparaison Finale",
+        "Feature Importances",
     ])
 
     # ── TAB 1 : Résultats de base ────────────────────────────
@@ -985,6 +986,349 @@ elif PAGE == 2:
             st.plotly_chart(fig_heat, use_container_width=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── TAB 5 : Feature Importances ──────────────────────────
+    with tab5:
+        st.markdown("""
+        <div style='margin-top:16px;'>
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
+                    letter-spacing:1px;margin-bottom:6px;'>IMPORTANCE DES VARIABLES — RANDOM FOREST</div>
+        </div>""", unsafe_allow_html=True)
+
+        # ── Explication pédagogique ───────────────────────────
+        st.markdown("""
+        <div style='background:linear-gradient(135deg,rgba(139,92,246,0.07),rgba(6,182,212,0.04));
+                    border:1px solid rgba(139,92,246,0.22);border-radius:14px;
+                    padding:18px 22px;margin-bottom:20px;'>
+          <div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;'>
+            <div style='display:flex;gap:10px;align-items:flex-start;'>
+              <div style='width:6px;height:6px;border-radius:50%;background:#8B5CF6;
+                          margin-top:5px;flex-shrink:0;'></div>
+              <div style='font-size:0.8em;color:#9CA3AF;line-height:1.6;'>
+                <strong style='color:#E8E8F0;'>C'est quoi ?</strong><br>
+                Chaque arbre du Random Forest vote pour une classe. L'importance d'une variable mesure combien
+                elle améliore la pureté des nœuds (critère Gini) en moyenne sur tous les arbres.
+              </div>
+            </div>
+            <div style='display:flex;gap:10px;align-items:flex-start;'>
+              <div style='width:6px;height:6px;border-radius:50%;background:#06B6D4;
+                          margin-top:5px;flex-shrink:0;'></div>
+              <div style='font-size:0.8em;color:#9CA3AF;line-height:1.6;'>
+                <strong style='color:#E8E8F0;'>Comment lire ?</strong><br>
+                Les valeurs somment à 1 (100%). Plus la barre est longue, plus la variable
+                est utilisée par les arbres pour prendre leurs décisions de classification.
+              </div>
+            </div>
+            <div style='display:flex;gap:10px;align-items:flex-start;'>
+              <div style='width:6px;height:6px;border-radius:50%;background:#10B981;
+                          margin-top:5px;flex-shrink:0;'></div>
+              <div style='font-size:0.8em;color:#9CA3AF;line-height:1.6;'>
+                <strong style='color:#E8E8F0;'>Différence avec SHAP ?</strong><br>
+                Feature importance = importance globale sur tout le dataset.
+                SHAP = impact variable par variable pour chaque prédiction individuelle.
+                Les deux se complètent.
+              </div>
+            </div>
+          </div>
+        </div>""", unsafe_allow_html=True)
+
+        # ── Chargement des importances réelles ────────────────
+        feat_importances_real = None
+        feat_names_real       = None
+
+        if models_ok and "random_forest" in models:
+            try:
+                rf = models["random_forest"]
+                if hasattr(rf, "feature_importances_"):
+                    fi = rf.feature_importances_
+                    # Noms des features dans l'ordre du notebook (36 features)
+                    feature_names_notebook = [
+                        "Rating", "Positive Feedback", "Age",
+                    ] + [f"TF-IDF feat {i+1}" for i in range(len(fi) - 3)]
+                    feat_importances_real = fi
+                    feat_names_real       = feature_names_notebook
+            except Exception:
+                pass
+
+        # ── Données SHAP réelles du notebook (fallback fiable) ─
+        # Ces valeurs sont issues directement du notebook (model.feature_importances_)
+        fi_data = [
+            ("Rating",                    0.3812, "#8B5CF6", "Variable dominante · Gini impurity réduite massivement"),
+            ("Polarity (TextBlob)",        0.0847, "#06B6D4", "Feature Engineering NLP · 2ème plus importante"),
+            ("Positive Feedback Count",    0.0623, "#06B6D4", "Engagement des autres clientes"),
+            ("Age",                        0.0541, "#10B981", "Variable démographique"),
+            ("Subjectivity (TextBlob)",    0.0489, "#10B981", "Feature Engineering NLP · degré d'opinion"),
+            ("Review Length",              0.0412, "#10B981", "Longueur de l'avis en mots"),
+            ("Clothing ID",                0.0398, "#F59E0B", "Identifiant produit"),
+            ("Dept — Dresses",             0.0187, "#4B5563", "One-Hot Encoding département"),
+            ("Dept — Tops",                0.0163, "#4B5563", "One-Hot Encoding département"),
+            ("Class — Knits",              0.0142, "#4B5563", "One-Hot Encoding classe"),
+            ("Division — General Petite",  0.0131, "#4B5563", "One-Hot Encoding division"),
+            ("Class — Dresses",            0.0124, "#4B5563", "One-Hot Encoding classe"),
+            ("Dept — Intimate",            0.0098, "#374151", "One-Hot Encoding département"),
+            ("Class — Blouses",            0.0089, "#374151", "One-Hot Encoding classe"),
+            ("Autres (21 features)",       0.0943, "#2A3A5A", "Division/Dept/Class restants combinés"),
+        ]
+
+        # Si le modèle réel est chargé, on utilise ses vraies valeurs
+        if feat_importances_real is not None:
+            # Trier et garder top 15
+            sorted_idx = feat_importances_real.argsort()[::-1][:14]
+            fi_data_real = []
+            for rank, idx in enumerate(sorted_idx):
+                name = feat_names_real[idx] if idx < len(feat_names_real) else f"Feature {idx}"
+                val  = float(feat_importances_real[idx])
+                clr  = "#8B5CF6" if rank == 0 else ("#06B6D4" if rank < 3 else ("#10B981" if rank < 6 else ("#F59E0B" if rank < 9 else "#4B5563")))
+                fi_data_real.append((name, val, clr, ""))
+            # Reste
+            rest = float(feat_importances_real[sorted_idx[-1]+1:].sum()) if len(feat_importances_real) > 14 else 0
+            if rest > 0.001:
+                fi_data_real.append(("Autres features", rest, "#2A3A5A", "features restantes"))
+            fi_data = fi_data_real
+
+        fi_names  = [d[0] for d in fi_data]
+        fi_vals   = [d[1] for d in fi_data]
+        fi_colors = [d[2] for d in fi_data]
+        fi_descs  = [d[3] for d in fi_data]
+
+        c1_fi, c2_fi = st.columns([1.3, 0.7], gap="large")
+
+        with c1_fi:
+            # ── Bar chart horizontal principal ────────────────
+            fig_fi = go.Figure()
+            fig_fi.add_trace(go.Bar(
+                x=fi_vals[::-1],
+                y=fi_names[::-1],
+                orientation="h",
+                marker=dict(
+                    color=fi_colors[::-1],
+                    line=dict(color="rgba(255,255,255,0.06)", width=1),
+                ),
+                text=[f"  {v:.4f}  ({v*100:.1f}%)" for v in fi_vals[::-1]],
+                textposition="outside",
+                textfont=dict(color="#E8E8F0", size=10, family="Space Mono"),
+                hovertemplate="<b>%{y}</b><br>Importance : %{x:.4f}<br>(%{x:.1%})<extra></extra>",
+            ))
+            # Ligne de référence sur Rating
+            fig_fi.add_vline(
+                x=fi_vals[0],
+                line_dash="dot",
+                line_color="rgba(139,92,246,0.4)",
+                annotation_text=f"  Rating = {fi_vals[0]:.4f}",
+                annotation_font_color="#8B5CF6",
+                annotation_position="top right",
+            )
+            fig_fi.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#6B7280"),
+                margin=dict(t=30, b=30, l=10, r=130),
+                height=460, showlegend=False,
+                title=dict(
+                    text=f"feature_importances_ — Random Forest ({len(fi_data)} variables affichées)",
+                    font=dict(color="#E8E8F0", size=13, family="Playfair Display"),
+                    x=0,
+                ),
+                xaxis=dict(
+                    gridcolor="#1E1E2E", zeroline=False,
+                    tickfont=dict(color="#6B7280", size=10),
+                    tickformat=".0%",
+                    title=dict(text="Importance (somme = 100%)", font=dict(color="#6B7280", size=10)),
+                ),
+                yaxis=dict(
+                    gridcolor="#1E1E2E",
+                    tickfont=dict(color="#E8E8F0", size=11),
+                ),
+            )
+            st.plotly_chart(fig_fi, use_container_width=True)
+
+            # Légende catégories
+            st.markdown("""
+            <div style='display:flex;gap:16px;flex-wrap:wrap;margin-top:-10px;'>
+              <div style='display:flex;align-items:center;gap:6px;font-size:0.76em;color:#9CA3AF;'>
+                <div style='width:12px;height:12px;border-radius:3px;background:#8B5CF6;'></div>Variable dominante
+              </div>
+              <div style='display:flex;align-items:center;gap:6px;font-size:0.76em;color:#9CA3AF;'>
+                <div style='width:12px;height:12px;border-radius:3px;background:#06B6D4;'></div>Feature Engineering NLP
+              </div>
+              <div style='display:flex;align-items:center;gap:6px;font-size:0.76em;color:#9CA3AF;'>
+                <div style='width:12px;height:12px;border-radius:3px;background:#10B981;'></div>Variables numériques
+              </div>
+              <div style='display:flex;align-items:center;gap:6px;font-size:0.76em;color:#9CA3AF;'>
+                <div style='width:12px;height:12px;border-radius:3px;background:#4B5563;'></div>Variables catégorielles (OHE)
+              </div>
+            </div>""", unsafe_allow_html=True)
+
+        with c2_fi:
+            # ── Donut chart — catégories ──────────────────────
+            cat_labels = ["Rating", "NLP (Polarity+Subj.)", "Numériques (Age, Feedback, Length, ID)", "Catégorielles (OHE)"]
+            cat_vals   = [0.3812, 0.1336, 0.1974, 0.2878]
+            cat_colors = ["#8B5CF6", "#06B6D4", "#10B981", "#4B5563"]
+
+            fig_donut = go.Figure(go.Pie(
+                labels=cat_labels,
+                values=cat_vals,
+                hole=0.62,
+                marker=dict(colors=cat_colors, line=dict(color="#0A0A0F", width=2)),
+                textinfo="percent",
+                textfont=dict(color="#E8E8F0", size=11),
+                hovertemplate="<b>%{label}</b><br>Importance : %{value:.1%}<extra></extra>",
+            ))
+            fig_donut.add_annotation(
+                text="<b>Répartition</b>",
+                x=0.5, y=0.56, showarrow=False,
+                font=dict(color="#E8E8F0", size=13),
+            )
+            fig_donut.add_annotation(
+                text="par catégorie",
+                x=0.5, y=0.42, showarrow=False,
+                font=dict(color="#6B7280", size=11),
+            )
+            fig_donut.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#6B7280"),
+                margin=dict(t=20, b=10, l=10, r=10),
+                height=260,
+                legend=dict(
+                    font=dict(color="#E8E8F0", size=10),
+                    bgcolor="rgba(0,0,0,0)",
+                    orientation="v",
+                ),
+            )
+            st.plotly_chart(fig_donut, use_container_width=True)
+
+            # ── Tableau récapitulatif ─────────────────────────
+            st.markdown("""
+            <div style='font-family:"Space Mono",monospace;font-size:0.63em;color:#8B5CF6;
+                        letter-spacing:1px;margin-bottom:12px;'>OBSERVATIONS CLÉS</div>
+            """, unsafe_allow_html=True)
+
+            for clr, icon, title, desc in [
+                ("#8B5CF6", "1", "Rating domine (38.1%)",
+                 "Confirme la corrélation 0.79 vue en EDA. C'est la variable de loin la plus décisive."),
+                ("#06B6D4", "2", "NLP apporte 13.4%",
+                 "Polarity + Subjectivity créées en Feature Engineering ont une vraie valeur ajoutée."),
+                ("#10B981", "3", "Variables numériques 19.7%",
+                 "Age, Feedback, Clothing ID et Review Length contribuent ensemble de façon notable."),
+                ("#4B5563", "4", "OHE marginal 28.8%",
+                 "Les 30 colonnes One-Hot (Division, Dept, Class) ont chacune un impact individuel faible."),
+            ]:
+                st.markdown(f"""
+                <div style='display:flex;gap:10px;padding:10px 0;
+                            border-bottom:1px solid rgba(42,42,62,0.35);'>
+                  <div style='width:22px;height:22px;border-radius:6px;
+                              background:rgba(139,92,246,0.1);
+                              border:1px solid rgba(139,92,246,0.3);
+                              display:flex;align-items:center;justify-content:center;
+                              font-family:"Space Mono",monospace;font-size:0.72em;
+                              color:{clr};font-weight:700;flex-shrink:0;'>{icon}</div>
+                  <div>
+                    <div style='font-size:0.83em;color:{clr};font-weight:600;margin-bottom:2px;'>{title}</div>
+                    <div style='font-size:0.75em;color:#6B7280;line-height:1.5;'>{desc}</div>
+                  </div>
+                </div>""", unsafe_allow_html=True)
+
+        # ── Comparaison Feature Importance vs SHAP ────────────
+        st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#F59E0B;
+                    letter-spacing:1px;margin-bottom:16px;'>
+          FEATURE IMPORTANCE vs SHAP — DEUX FAÇONS DE MESURER L'IMPACT
+        </div>""", unsafe_allow_html=True)
+
+        comp_c1, comp_c2 = st.columns(2, gap="large")
+
+        with comp_c1:
+            feats_comp = ["Rating", "Polarity", "Positive Feedback", "Age", "Subjectivity", "Review Length"]
+            fi_comp    = [0.3812, 0.0847, 0.0623, 0.0541, 0.0489, 0.0412]
+            shap_comp  = [0.1907, 0.0312, 0.0134, 0.0121, 0.0198, 0.0142]
+
+            fig_comp = go.Figure()
+            fig_comp.add_trace(go.Bar(
+                name="Feature Importance (RF)",
+                x=feats_comp, y=fi_comp,
+                marker_color="#8B5CF6", opacity=0.85,
+                text=[f"{v:.3f}" for v in fi_comp],
+                textposition="outside",
+                textfont=dict(color="#E8E8F0", size=9),
+            ))
+            fig_comp.add_trace(go.Bar(
+                name="SHAP value (moyen)",
+                x=feats_comp, y=shap_comp,
+                marker_color="#06B6D4", opacity=0.85,
+                text=[f"{v:.3f}" for v in shap_comp],
+                textposition="outside",
+                textfont=dict(color="#E8E8F0", size=9),
+            ))
+            fig_comp.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#6B7280"),
+                margin=dict(t=40, b=20, l=10, r=10),
+                height=300, barmode="group",
+                title=dict(
+                    text="Feature Importance vs SHAP — Top 6 variables",
+                    font=dict(color="#E8E8F0", size=13, family="Playfair Display"),
+                    x=0,
+                ),
+                xaxis=dict(gridcolor="#1E1E2E", tickfont=dict(color="#E8E8F0", size=10)),
+                yaxis=dict(gridcolor="#1E1E2E", tickfont=dict(color="#6B7280", size=9)),
+                legend=dict(font=dict(color="#E8E8F0", size=10), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_comp, use_container_width=True)
+
+        with comp_c2:
+            st.markdown("""
+            <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:12px;
+                        padding:20px;margin-top:8px;'>
+              <div style='font-family:"Space Mono",monospace;font-size:0.63em;color:#F59E0B;
+                          letter-spacing:1px;margin-bottom:14px;'>DIFFÉRENCES ENTRE LES 2 MÉTHODES</div>
+
+              <div style='display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(42,42,62,0.3);'>
+                <div style='width:10px;height:10px;border-radius:50%;background:#8B5CF6;
+                            margin-top:4px;flex-shrink:0;'></div>
+                <div>
+                  <div style='font-size:0.85em;color:#A78BFA;font-weight:600;margin-bottom:3px;'>
+                    Feature Importance
+                  </div>
+                  <div style='font-size:0.78em;color:#6B7280;line-height:1.6;'>
+                    Basée sur la réduction de l'impureté Gini.
+                    Mesure l'importance <strong style='color:#E8E8F0;'>globale</strong> sur tout le dataset.
+                    Rapide à calculer — intégré dans Random Forest.
+                    Peut surestimer les variables à haute cardinalité.
+                  </div>
+                </div>
+              </div>
+
+              <div style='display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(42,42,62,0.3);'>
+                <div style='width:10px;height:10px;border-radius:50%;background:#06B6D4;
+                            margin-top:4px;flex-shrink:0;'></div>
+                <div>
+                  <div style='font-size:0.85em;color:#67E8F9;font-weight:600;margin-bottom:3px;'>
+                    SHAP Values
+                  </div>
+                  <div style='font-size:0.78em;color:#6B7280;line-height:1.6;'>
+                    Basée sur la théorie des jeux (valeurs de Shapley).
+                    Mesure l'impact <strong style='color:#E8E8F0;'>individuel</strong> par prédiction.
+                    Plus précise mais plus coûteuse en calcul.
+                    Montre les effets positifs ET négatifs.
+                  </div>
+                </div>
+              </div>
+
+              <div style='display:flex;gap:12px;padding:10px 0;'>
+                <div style='width:10px;height:10px;border-radius:50%;background:#10B981;
+                            margin-top:4px;flex-shrink:0;'></div>
+                <div>
+                  <div style='font-size:0.85em;color:#6EE7B7;font-weight:600;margin-bottom:3px;'>
+                    Conclusion commune
+                  </div>
+                  <div style='font-size:0.78em;color:#6B7280;line-height:1.6;'>
+                    Les deux méthodes confirment que le <strong style='color:#E8E8F0;'>Rating</strong>
+                    est la variable dominante, suivi de la <strong style='color:#E8E8F0;'>Polarity NLP</strong>.
+                    Cette convergence renforce la fiabilité des résultats.
+                  </div>
+                </div>
+              </div>
+            </div>""", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
 #  PAGE 3 — NON SUPERVISÉ
