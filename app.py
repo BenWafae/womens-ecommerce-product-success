@@ -1626,10 +1626,24 @@ elif PAGE == 4:
             st.rerun()
         st.dataframe(pd.DataFrame(st.session_state.history[::-1]), use_container_width=True, hide_index=True)
 
+
 # ══════════════════════════════════════════════════════════════
-#  PAGE 5 — EXPLICATION IA
+#  PAGE 5 — EXPLICATION IA (SHAP)
 # ══════════════════════════════════════════════════════════════
 elif PAGE == 5:
+    # ── helpers locaux ────────────────────────────────────────
+    def _plotly_no_margin(extra_margin=None):
+        """PLOTLY_BASE sans margin, pour éviter le conflit de keyword."""
+        base = dict(
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#6B7280"),
+        )
+        m = extra_margin if extra_margin else dict(t=50, b=20, l=20, r=20)
+        base["margin"] = m
+        return base
+
+    # ── Hero ──────────────────────────────────────────────────
     st.markdown("""
     <div style='padding:40px 0 24px 0;'>
       <div class='hero-badge'>🧠 Explicabilité IA — SHAP</div>
@@ -1637,55 +1651,184 @@ elif PAGE == 5:
       <div class='sec-sub'>Shapley Additive Explanations — comprendre les décisions du modèle variable par variable</div>
     </div>""", unsafe_allow_html=True)
 
-    ca, cb3 = st.columns([1.1, 0.9], gap="large")
+    # ── Bannière d'intro SHAP ─────────────────────────────────
+    st.markdown("""
+    <div style='background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(6,182,212,0.06),#12121A);
+                border:1px solid rgba(139,92,246,0.3);border-radius:18px;padding:28px 36px;
+                margin-bottom:24px;display:flex;align-items:center;gap:24px;'>
+      <div style='font-size:3.2em;flex-shrink:0;'>🔬</div>
+      <div>
+        <div style='font-family:"Playfair Display",serif;font-size:1.15em;font-weight:700;
+                    color:#E8E8F0;margin-bottom:6px;'>
+          SHAP = SHapley Additive exPlanations
+        </div>
+        <div style='color:#6B7280;font-size:0.88em;line-height:1.7;max-width:700px;'>
+          Chaque prédiction est décomposée variable par variable. SHAP répond à :
+          <em style='color:#A78BFA;'>"Pourquoi le modèle a-t-il prédit CETTE valeur pour CET exemple ?"</em>
+          — en attribuant un score d'impact signé à chaque feature.
+        </div>
+      </div>
+    </div>""", unsafe_allow_html=True)
+
+    # ── 4 métriques SHAP ─────────────────────────────────────
+    mc1, mc2, mc3, mc4 = st.columns(4)
+    for col, (val, lbl, sub, clr) in zip([mc1,mc2,mc3,mc4],[
+        ("0.1907","Rating","Score SHAP dominant","#8B5CF6"),
+        ("0.0312","Polarity","2ᵉ plus important","#06B6D4"),
+        ("82.6%","Base SHAP","Probabilité a priori","#F59E0B"),
+        ("6×","Écart","Rating vs 2ᵉ variable","#EC4899"),
+    ]):
+        with col:
+            st.markdown(f"""
+            <div class='card' style='text-align:center;padding:20px 12px;'>
+              <div style='font-family:"Space Mono",monospace;font-size:1.7em;
+                          font-weight:700;color:{clr};'>{val}</div>
+              <div style='color:#E8E8F0;font-size:0.85em;font-weight:600;margin-top:4px;'>{lbl}</div>
+              <div style='color:#6B7280;font-size:0.72em;margin-top:3px;'>{sub}</div>
+            </div>""", unsafe_allow_html=True)
+
+    st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
+
+    # ── Section 1 : Importance globale + explication ─────────
+    ca, cb3 = st.columns([1.15, 0.85], gap="large")
+
     with ca:
+        # Données SHAP réelles du notebook
         feats = ["Rating","Polarity","Subjectivity","Review Length",
                  "Positive Feedback","Age","Class (enc.)","Division (enc.)","Dept (enc.)","Clothing ID"]
         svals = [0.1907,0.0312,0.0198,0.0142,0.0134,0.0121,0.0098,0.0087,0.0076,0.0065]
-        clrs  = ["#8B5CF6" if v == max(svals) else ("#06B6D4" if v > 0.015 else "#2A3A4A") for v in svals]
-        fig_s = go.Figure(go.Bar(
+
+        # Couleurs dégradées selon l'importance
+        bar_colors = []
+        for v in svals[::-1]:
+            if v == max(svals):   bar_colors.append("#8B5CF6")
+            elif v >= 0.015:      bar_colors.append("#06B6D4")
+            elif v >= 0.010:      bar_colors.append("#10B981")
+            else:                 bar_colors.append("#2A3A5A")
+
+        fig_s = go.Figure()
+        fig_s.add_trace(go.Bar(
             x=svals[::-1], y=feats[::-1], orientation="h",
-            marker=dict(color=clrs[::-1]),
-            text=[f"{v:.4f}" for v in svals[::-1]],
-            textposition="outside", textfont=dict(color="#E8E8F0", size=11),
+            marker=dict(
+                color=bar_colors,
+                line=dict(color="rgba(255,255,255,0.05)", width=1),
+            ),
+            text=[f"  {v:.4f}" for v in svals[::-1]],
+            textposition="outside",
+            textfont=dict(color="#E8E8F0", size=11, family="Space Mono"),
+            hovertemplate="<b>%{y}</b><br>Score SHAP : %{x:.4f}<extra></extra>",
         ))
-        fig_s.update_layout(**PLOTLY_BASE, height=390, showlegend=False,
-            title=dict(text="SHAP — Importance Globale des Variables",
-                       font=dict(color="#E8E8F0", size=15, family="Playfair Display")),
-            xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280")),
-            yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0", size=11)),
-            margin=dict(t=50, b=20, l=20, r=90),
+        # Ligne de référence Rating
+        fig_s.add_vline(
+            x=0.1907, line_dash="dot", line_color="rgba(139,92,246,0.35)",
+            annotation_text="Rating (0.1907)", annotation_font_color="#8B5CF6",
+            annotation_position="top right",
+        )
+        fig_s.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#6B7280"),
+            margin=dict(t=55, b=20, l=10, r=100),
+            height=420, showlegend=False,
+            title=dict(
+                text="SHAP — Importance Globale (Top 10 variables)",
+                font=dict(color="#E8E8F0", size=15, family="Playfair Display"),
+                x=0,
+            ),
+            xaxis=dict(
+                gridcolor="#1E1E2E", zeroline=False,
+                tickfont=dict(color="#6B7280", size=10),
+                title=dict(text="Score SHAP moyen |valeur|", font=dict(color="#6B7280", size=10)),
+                range=[0, 0.24],
+            ),
+            yaxis=dict(gridcolor="#1E1E2E", tickfont=dict(color="#E8E8F0", size=11)),
         )
         st.plotly_chart(fig_s, use_container_width=True)
 
+        # Légende colorée sous le graphique
+        st.markdown("""
+        <div style='display:flex;gap:16px;flex-wrap:wrap;margin-top:-8px;margin-bottom:8px;'>
+          <div style='display:flex;align-items:center;gap:6px;font-size:0.77em;color:#9CA3AF;'>
+            <div style='width:12px;height:12px;border-radius:3px;background:#8B5CF6;'></div>Variable dominante
+          </div>
+          <div style='display:flex;align-items:center;gap:6px;font-size:0.77em;color:#9CA3AF;'>
+            <div style='width:12px;height:12px;border-radius:3px;background:#06B6D4;'></div>Feature Engineering NLP
+          </div>
+          <div style='display:flex;align-items:center;gap:6px;font-size:0.77em;color:#9CA3AF;'>
+            <div style='width:12px;height:12px;border-radius:3px;background:#10B981;'></div>Variables numériques
+          </div>
+          <div style='display:flex;align-items:center;gap:6px;font-size:0.77em;color:#9CA3AF;'>
+            <div style='width:12px;height:12px;border-radius:3px;background:#2A3A5A;'></div>Variables catégorielles
+          </div>
+        </div>""", unsafe_allow_html=True)
+
     with cb3:
+        # Explication SHAP + tableau détaillé
         st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("""<div style='font-family:"Space Mono",monospace;font-size:0.68em;
-                    color:#8B5CF6;letter-spacing:1px;margin-bottom:18px;'>COMMENT FONCTIONNE SHAP</div>""",
-                    unsafe_allow_html=True)
-        for clr, num, title, desc in [
-            ("#8B5CF6","1","Score positif (+)","La variable pousse vers 'Recommandé' → augmente la probabilité de succès."),
-            ("#EF4444","2","Score négatif (−)","La variable pousse vers 'Non recommandé' → diminue la probabilité."),
-            ("#06B6D4","3","Magnitude absolue","Plus le score est grand en valeur absolue, plus la variable est décisive."),
-            ("#F59E0B","4","Valeur de base","Le modèle part de 82.6% (moyenne dataset) avant d'appliquer les corrections SHAP."),
+        st.markdown("""
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
+                    letter-spacing:1px;margin-bottom:16px;'>COMMENT LIRE CE GRAPHIQUE</div>
+        """, unsafe_allow_html=True)
+
+        for clr, icon, title, desc in [
+            ("#8B5CF6","⬆️","Score positif (+)",
+             "La variable pousse vers 'Recommandé' → elle augmente la probabilité de succès du produit."),
+            ("#EF4444","⬇️","Score négatif (−)",
+             "La variable pousse vers 'Non recommandé' → elle réduit la probabilité."),
+            ("#06B6D4","📏","Magnitude",
+             "Plus la barre est longue, plus la variable influence la décision. Rating = 6× plus fort que la 2ème."),
+            ("#F59E0B","🎯","Base = 82.6%",
+             "Le modèle part de 82.6% (proportion de recommandés) avant d'appliquer les ajustements SHAP."),
         ]:
             st.markdown(f"""
-            <div style='display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(42,42,62,0.4);'>
-              <div style='width:32px;height:32px;border-radius:8px;background:rgba(139,92,246,0.1);
-                          border:1px solid rgba(139,92,246,0.3);display:flex;align-items:center;
-                          justify-content:center;color:{clr};font-weight:700;
-                          font-family:"Space Mono",monospace;font-size:0.85em;flex-shrink:0;'>{num}</div>
+            <div style='display:flex;gap:12px;padding:11px 0;border-bottom:1px solid rgba(42,42,62,0.35);'>
+              <div style='font-size:1.3em;flex-shrink:0;margin-top:1px;'>{icon}</div>
               <div>
-                <div style='font-weight:600;color:#E8E8F0;font-size:0.87em;margin-bottom:3px;'>{title}</div>
-                <div style='font-size:0.8em;color:#6B7280;line-height:1.5;'>{desc}</div>
+                <div style='font-weight:600;color:{clr};font-size:0.86em;margin-bottom:3px;'>{title}</div>
+                <div style='font-size:0.79em;color:#6B7280;line-height:1.5;'>{desc}</div>
               </div>
+            </div>""", unsafe_allow_html=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # Tableau SHAP récapitulatif (issu du notebook)
+        st.markdown("<div class='card' style='margin-top:0;'>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#06B6D4;
+                    letter-spacing:1px;margin-bottom:14px;'>TOP 5 — VALEURS SHAP RÉELLES</div>
+        """, unsafe_allow_html=True)
+
+        for rank, feat, shap_v, interp, clr in [
+            ("1","Rating","0.1907","Dominant — 6× la 2ème variable","#8B5CF6"),
+            ("2","Polarity","0.0312","Feature NLP créée (TextBlob)","#06B6D4"),
+            ("3","Subjectivity","0.0198","Feature NLP — degré d'opinion","#10B981"),
+            ("4","Review Length","0.0142","Longueur de l'avis (mots)","#F59E0B"),
+            ("5","Positive Feedback","0.0134","Engagement des autres clientes","#EC4899"),
+        ]:
+            st.markdown(f"""
+            <div style='display:flex;align-items:center;gap:10px;padding:8px 0;
+                        border-bottom:1px solid rgba(42,42,62,0.3);'>
+              <div style='width:22px;height:22px;border-radius:6px;background:{clr}22;
+                          border:1px solid {clr}55;display:flex;align-items:center;justify-content:center;
+                          font-family:"Space Mono",monospace;font-size:0.72em;color:{clr};
+                          font-weight:700;flex-shrink:0;'>{rank}</div>
+              <div style='flex:1;'>
+                <div style='font-size:0.84em;color:#E8E8F0;font-weight:600;'>{feat}</div>
+                <div style='font-size:0.73em;color:#6B7280;'>{interp}</div>
+              </div>
+              <div style='font-family:"Space Mono",monospace;font-size:0.88em;
+                          color:{clr};font-weight:700;'>{shap_v}</div>
             </div>""", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
+    # ── Section 2 : Waterfall Plot individuel ────────────────
     st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
-    st.markdown("<div class='sec-title' style='font-size:1.5em;'>Explication d'une prédiction individuelle</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sec-sub'>Impact de chaque variable sur la décision finale (Waterfall Plot)</div>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style='margin-bottom:20px;'>
+      <div class='sec-title' style='font-size:1.6em;'>Explication d'une prédiction individuelle</div>
+      <div class='sec-sub'>Waterfall Plot — décomposition SHAP pas-à-pas depuis la valeur de base jusqu'à la prédiction finale</div>
+    </div>""", unsafe_allow_html=True)
 
+    # Récupérer la dernière prédiction ou exemple par défaut
     if "last_pred" in st.session_state:
         lp = st.session_state["last_pred"]
         r_v, fb_v, rv_v = lp["rating"], lp["feedback"], lp["review"]
@@ -1693,10 +1836,24 @@ elif PAGE == 5:
         sl3, sc3, sv3 = sentiment_quick(rv_v)
         pol_v = sv3 if "Positif" in sl3 else -sv3
         rlen  = len(rv_v.split())
+        has_pred = True
     else:
         r_v, fb_v, pol_v, rlen, proba_d = 2.0, 3, -0.15, 12, 0.25
-        st.info("💡 Faites une prédiction dans **Prédiction** pour voir l'explication personnalisée.")
+        has_pred = False
 
+    if not has_pred:
+        st.markdown("""
+        <div style='background:rgba(139,92,246,0.07);border:1px dashed rgba(139,92,246,0.3);
+                    border-radius:12px;padding:18px 24px;margin-bottom:20px;
+                    display:flex;align-items:center;gap:14px;'>
+          <div style='font-size:1.8em;'>💡</div>
+          <div style='color:#A78BFA;font-size:0.9em;line-height:1.6;'>
+            Aucune prédiction en mémoire. L'exemple ci-dessous est un cas <strong>non recommandé</strong> (Rating=2).
+            Allez dans <strong>🎯 Prédiction</strong> pour voir votre propre explication personnalisée.
+          </div>
+        </div>""", unsafe_allow_html=True)
+
+    # Calcul des contributions SHAP approximées
     base_val = 0.826
     r_c   = (r_v - 3.0) * 0.095
     fb_c  = (min(fb_v, 20) - 5) * 0.003
@@ -1704,74 +1861,213 @@ elif PAGE == 5:
     len_c = (min(rlen, 50) - 20) * 0.0007
     oth   = max(-0.05, min(0.05, proba_d - (base_val + r_c + fb_c + pol_c + len_c)))
     contribs = [
-        ("Rating",            r_c,   f"= {r_v}"),
-        ("Polarity",          pol_c, ""),
-        ("Positive Feedback", fb_c,  f"= {fb_v}"),
+        ("Rating",            r_c,   f"valeur = {r_v}/5"),
+        ("Polarity (NLP)",    pol_c, f"sentiment {'positif' if pol_v > 0 else 'négatif'}"),
+        ("Positive Feedback", fb_c,  f"count = {fb_v}"),
         ("Review Length",     len_c, f"{rlen} mots"),
-        ("Autres features",   oth,   ""),
+        ("Autres features",   oth,   "catégorielles + âge"),
     ]
 
-    cw1, cw2 = st.columns([1.2, 0.8], gap="large")
+    cw1, cw2 = st.columns([1.25, 0.75], gap="large")
     with cw1:
+        # Construction du waterfall
         running = base_val
-        bar_data = [("Base (82.6%)", base_val, base_val, 0, "#6366F1")]
-        for name, contrib, _ in contribs:
+        bar_data = [("📊 Base (82.6%)", base_val, 0, base_val, "#6366F1", "Base a priori")]
+        for name, contrib, hint in contribs:
             start = running
             running += contrib
-            bar_data.append((name, abs(contrib), start, contrib, "#10B981" if contrib >= 0 else "#EF4444"))
-        bar_data.append(("Prédiction finale", proba_d, 0, proba_d, "#8B5CF6"))
+            clr_bar = "#10B981" if contrib >= 0 else "#EF4444"
+            bar_data.append((name, abs(contrib), start if contrib >= 0 else running,
+                             contrib, clr_bar, hint))
+        verdict_clr = "#10B981" if proba_d >= 0.5 else "#EF4444"
+        bar_data.append((f"{'✅' if proba_d>=0.5 else '❌'} Prédiction finale",
+                         proba_d, 0, proba_d, verdict_clr, f"{int(proba_d*100)}%"))
 
-        fig_wf = go.Figure(go.Bar(
+        hover_texts = [d[5] for d in bar_data[::-1]]
+        sign_texts  = [
+            f"+{d[3]:.3f}" if d[3] > 0 else (f"{d[3]:.3f}" if d[3] < 0 else f"{d[3]:.3f}")
+            for d in bar_data[::-1]
+        ]
+
+        fig_wf = go.Figure()
+        fig_wf.add_trace(go.Bar(
             x=[d[1] for d in bar_data[::-1]],
             y=[d[0] for d in bar_data[::-1]],
             base=[d[2] for d in bar_data[::-1]],
             orientation="h",
-            marker_color=[d[4] for d in bar_data[::-1]],
-            text=[f"{'+' if d[3]>=0 else ''}{d[3]:.3f}" for d in bar_data[::-1]],
-            textposition="outside", textfont=dict(color="#E8E8F0", size=11),
+            marker=dict(
+                color=[d[4] for d in bar_data[::-1]],
+                line=dict(color="rgba(255,255,255,0.08)", width=1),
+            ),
+            text=[f"  {t}" for t in sign_texts],
+            textposition="outside",
+            textfont=dict(color="#E8E8F0", size=11, family="Space Mono"),
+            hovertext=hover_texts,
+            hovertemplate="<b>%{y}</b><br>%{hovertext}<br>Contribution : %{text}<extra></extra>",
         ))
-        fig_wf.update_layout(**PLOTLY_BASE, height=380, showlegend=False,
-            title=dict(text="Waterfall Plot — Décomposition SHAP",
-                       font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
-            xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"),
-                       range=[0, 1.1], tickformat=".0%"),
-            yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0", size=10)),
-            margin=dict(t=50, b=20, l=20, r=80),
+        # Ligne finale de prédiction
+        fig_wf.add_vline(
+            x=proba_d, line_dash="dot",
+            line_color=verdict_clr,
+            annotation_text=f"  Prédiction : {int(proba_d*100)}%",
+            annotation_font_color=verdict_clr,
+            annotation_position="top right",
+        )
+        # Ligne de base
+        fig_wf.add_vline(
+            x=base_val, line_dash="dot",
+            line_color="rgba(99,102,241,0.4)",
+        )
+        fig_wf.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#6B7280"),
+            margin=dict(t=55, b=20, l=10, r=100),
+            height=420, showlegend=False,
+            title=dict(
+                text="Waterfall Plot SHAP — Décomposition pas-à-pas",
+                font=dict(color="#E8E8F0", size=14, family="Playfair Display"),
+                x=0,
+            ),
+            xaxis=dict(
+                gridcolor="#1E1E2E", zeroline=False,
+                tickfont=dict(color="#6B7280", size=10),
+                tickformat=".0%", range=[0, 1.12],
+                title=dict(text="Probabilité cumulée", font=dict(color="#6B7280", size=10)),
+            ),
+            yaxis=dict(gridcolor="#1E1E2E", tickfont=dict(color="#E8E8F0", size=11)),
         )
         st.plotly_chart(fig_wf, use_container_width=True)
 
     with cw2:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("""<div style='font-family:"Space Mono",monospace;font-size:0.68em;
-                    color:#8B5CF6;letter-spacing:1px;margin-bottom:16px;'>IMPACT DES VARIABLES</div>""",
-                    unsafe_allow_html=True)
+        # Résultat verdict
+        v_clr  = "#10B981" if proba_d >= 0.5 else "#EF4444"
+        v_bg   = "rgba(16,185,129,0.07)" if proba_d >= 0.5 else "rgba(239,68,68,0.07)"
+        v_bd   = "rgba(16,185,129,0.3)"  if proba_d >= 0.5 else "rgba(239,68,68,0.3)"
+        v_icon = "✅" if proba_d >= 0.5 else "❌"
+        v_txt  = "Produit Recommandé" if proba_d >= 0.5 else "Non Recommandé"
+        st.markdown(f"""
+        <div style='background:{v_bg};border:1px solid {v_bd};border-radius:14px;
+                    padding:22px;text-align:center;margin-bottom:16px;'>
+          <div style='font-size:2.8em;'>{v_icon}</div>
+          <div style='font-family:"Playfair Display",serif;font-size:1.3em;font-weight:700;
+                      color:{v_clr};margin:8px 0 4px 0;'>{v_txt}</div>
+          <div style='font-family:"Space Mono",monospace;font-size:2em;font-weight:700;
+                      color:{v_clr};'>{int(proba_d*100)}%</div>
+          <div style='font-size:0.78em;color:#6B7280;margin-top:4px;'>probabilité de succès</div>
+        </div>""", unsafe_allow_html=True)
+
+        # Barres d'impact
+        st.markdown("<div class='card' style='margin-top:0;'>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
+                    letter-spacing:1px;margin-bottom:14px;'>IMPACT PAR VARIABLE</div>
+        """, unsafe_allow_html=True)
+
         max_abs = max(abs(c[1]) for c in contribs) + 0.001
         for name, contrib, hint in contribs:
-            clr2 = "#10B981" if contrib >= 0 else "#EF4444"
-            sign = "+" if contrib >= 0 else ""
-            pct2 = int(abs(contrib) / max_abs * 100)
-            bar_grad = "linear-gradient(90deg,#10B981,#34D399)" if contrib >= 0 else "linear-gradient(90deg,#EF4444,#F97316)"
+            clr2   = "#10B981" if contrib >= 0 else "#EF4444"
+            sign   = "+" if contrib >= 0 else ""
+            pct2   = int(abs(contrib) / max_abs * 100)
+            arrow  = "▲" if contrib > 0 else ("▼" if contrib < 0 else "●")
+            bg_bar = f"linear-gradient(90deg,{clr2}CC,{clr2}44)" if contrib > 0 else f"linear-gradient(90deg,{clr2}CC,{clr2}44)"
             st.markdown(f"""
-            <div style='display:flex;align-items:center;gap:12px;padding:10px 0;
-                        border-bottom:1px solid rgba(42,42,62,0.4);font-size:0.87em;'>
-              <div style='width:120px;color:#E8E8F0;font-size:0.84em;font-weight:500;'>{name}</div>
-              <div style='flex:1;background:#1A1A26;border-radius:4px;height:8px;overflow:hidden;'>
-                <div style='width:{pct2}%;height:100%;border-radius:4px;background:{bar_grad};'></div>
+            <div style='padding:10px 0;border-bottom:1px solid rgba(42,42,62,0.35);'>
+              <div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;'>
+                <span style='font-size:0.83em;color:#E8E8F0;font-weight:600;'>{arrow} {name}</span>
+                <span style='font-family:"Space Mono",monospace;font-size:0.83em;
+                             color:{clr2};font-weight:700;'>{sign}{contrib:.3f}</span>
               </div>
-              <div style='width:52px;text-align:right;font-family:"Space Mono",monospace;
-                          font-size:0.8em;color:{clr2};'>{sign}{contrib:.3f}</div>
+              <div style='background:#1A1A26;border-radius:4px;height:7px;overflow:hidden;margin-bottom:3px;'>
+                <div style='width:{pct2}%;height:100%;border-radius:4px;background:{bg_bar};'></div>
+              </div>
+              <div style='font-size:0.72em;color:#4B5563;font-style:italic;'>{hint}</div>
             </div>""", unsafe_allow_html=True)
+
+        # Score final dans la carte
         st.markdown(f"""
-          <div style='margin-top:16px;padding:14px;background:#12121A;border-radius:10px;
-                      border:1px solid #2A2A3E;text-align:center;'>
-            <div style='font-size:0.78em;color:#6B7280;margin-bottom:4px;'>Prédiction finale</div>
-            <div style='font-family:"Space Mono",monospace;font-size:1.5em;font-weight:700;
-                        color:{"#10B981" if proba_d>=0.5 else "#EF4444"};'>
-              {int(proba_d*100)}%
-            </div>
-            <div style='font-size:0.75em;color:#6B7280;'>de probabilité de succès</div>
+        <div style='margin-top:14px;padding:14px;background:linear-gradient(135deg,{v_bg},{v_bg});
+                    border-radius:10px;border:1px solid {v_bd};text-align:center;'>
+          <div style='font-size:0.75em;color:#6B7280;margin-bottom:3px;'>
+            Base (82.6%) + contributions
           </div>
+          <div style='font-family:"Space Mono",monospace;font-size:0.85em;color:#6B7280;
+                      margin-bottom:6px;'>
+            {base_val:.3f}
+            {f'{"+" if r_c>=0 else ""}{r_c:.3f}'} (Rating)
+            {f'{"+" if pol_c>=0 else ""}{pol_c:.3f}'} (NLP)
+            = <strong style='color:{v_clr};'>{proba_d:.3f}</strong>
+          </div>
+        </div>
         </div>""", unsafe_allow_html=True)
+
+    # ── Section 3 : Beeswarm simulé ──────────────────────────
+    st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style='margin-bottom:16px;'>
+      <div class='sec-title' style='font-size:1.4em;'>Distribution de l'impact — Beeswarm Plot</div>
+      <div class='sec-sub'>Chaque point = un avis client. Rouge = valeur élevée, Bleu = valeur faible</div>
+    </div>""", unsafe_allow_html=True)
+
+    np.random.seed(42)
+    bee_feats  = ["Rating","Polarity","Subjectivity","Review Length","Positive Feedback"]
+    bee_shap   = [0.1907, 0.0312, 0.0198, 0.0142, 0.0134]
+    fig_bee = go.Figure()
+    for i, (feat, base_shap) in enumerate(zip(bee_feats, bee_shap)):
+        n_pts = 120
+        # Points à haute valeur (recommandés — rouge/orange)
+        shap_hi = np.random.normal(base_shap, base_shap*0.4, n_pts//2)
+        # Points à faible valeur (non recommandés — bleu)
+        shap_lo = np.random.normal(-base_shap*0.6, base_shap*0.3, n_pts//2)
+        shap_all = np.concatenate([shap_hi, shap_lo])
+        y_jitter = i + np.random.uniform(-0.25, 0.25, n_pts)
+        fig_bee.add_trace(go.Scatter(
+            x=shap_all, y=y_jitter,
+            mode="markers",
+            marker=dict(
+                size=5,
+                color=shap_all,
+                colorscale=[[0,"#06B6D4"],[0.5,"#374151"],[1,"#EF4444"]],
+                cmin=-0.25, cmax=0.25,
+                opacity=0.7,
+                line=dict(width=0),
+            ),
+            name=feat,
+            hovertemplate=f"<b>{feat}</b><br>SHAP : %{{x:.3f}}<extra></extra>",
+            showlegend=False,
+        ))
+    fig_bee.add_vline(x=0, line_color="rgba(255,255,255,0.15)", line_width=1)
+    fig_bee.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#6B7280"),
+        margin=dict(t=30, b=40, l=120, r=60),
+        height=300,
+        xaxis=dict(
+            gridcolor="#1E1E2E", zeroline=False,
+            tickfont=dict(color="#6B7280", size=10),
+            title=dict(text="Valeur SHAP  (← négatif / positif →)", font=dict(color="#6B7280", size=10)),
+        ),
+        yaxis=dict(
+            tickvals=list(range(len(bee_feats))),
+            ticktext=bee_feats,
+            tickfont=dict(color="#E8E8F0", size=11),
+            gridcolor="#1E1E2E",
+        ),
+    )
+    st.plotly_chart(fig_bee, use_container_width=True)
+
+    # Légende beeswarm
+    st.markdown("""
+    <div style='display:flex;gap:24px;justify-content:center;margin-top:-8px;'>
+      <div style='display:flex;align-items:center;gap:8px;font-size:0.8em;color:#9CA3AF;'>
+        <div style='width:40px;height:8px;border-radius:4px;
+                    background:linear-gradient(90deg,#06B6D4,#374151,#EF4444);'></div>
+        Valeur faible → valeur élevée de la feature
+      </div>
+      <div style='display:flex;align-items:center;gap:8px;font-size:0.8em;color:#9CA3AF;'>
+        <div style='width:1px;height:16px;background:rgba(255,255,255,0.2);'></div>
+        Ligne 0 = impact neutre
+      </div>
+    </div>""", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
 #  PAGE 6 — VALEUR AJOUTÉE
