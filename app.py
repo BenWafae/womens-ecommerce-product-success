@@ -8,12 +8,7 @@ import plotly.graph_objects as go
 # ═══════════════════════════════════════════════
 #  PAGE CONFIG
 # ═══════════════════════════════════════════════
-st.set_page_config(
-    page_title="ShopSense AI · E-Commerce Intelligence",
-    page_icon="🛍️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+
 
 # ═══════════════════════════════════════════════
 #  GLOBAL CSS
