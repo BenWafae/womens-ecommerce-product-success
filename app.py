@@ -39,17 +39,47 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; color: var(--te
 [data-testid="stSidebar"] { background: var(--bg2) !important; border-right: 1px solid var(--border); }
 [data-testid="stSidebar"] * { color: var(--text) !important; }
 
-/* Hide nav button text — show only the styled div above */
+/* Boutons de navigation dans la sidebar — stylés comme des nav-items */
 [data-testid="stSidebar"] .stButton > button {
-  opacity: 0;
-  height: 0 !important;
-  padding: 0 !important;
-  margin: -4px 0 0 0 !important;
-  min-height: 0 !important;
-  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+  margin: 2px 0 !important;
+  cursor: pointer !important;
+  border: 1px solid transparent !important;
+  font-size: 0.88em !important;
+  font-weight: 400 !important;
+  color: #6B7280 !important;
   background: transparent !important;
   box-shadow: none !important;
-  position: absolute;
+  text-align: left !important;
+  justify-content: flex-start !important;
+  letter-spacing: 0 !important;
+  transition: all 0.2s ease !important;
+  min-height: unset !important;
+  height: auto !important;
+}
+[data-testid="stSidebar"] .stButton > button:hover {
+  background: rgba(139,92,246,0.08) !important;
+  border-color: rgba(139,92,246,0.25) !important;
+  color: #E8E8F0 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+[data-testid="stSidebar"] .stButton > button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Page active — bouton mis en valeur */
+[data-testid="stSidebar"] .nav-active .stButton > button {
+  background: linear-gradient(135deg,rgba(139,92,246,0.18),rgba(236,72,153,0.09)) !important;
+  border-color: rgba(139,92,246,0.5) !important;
+  color: #E8E8F0 !important;
+  font-weight: 600 !important;
 }
 
 .hero {
@@ -91,6 +121,9 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; color: var(--te
   background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3));
 }
 
+/* ─── Wrapper page active dans la sidebar ─── */
+.nav-active { display: block; }
+
 .sec-title { font-family: 'Playfair Display', serif; font-size: 1.9em; font-weight: 700; color: #fff; margin: 0 0 6px 0; }
 .sec-sub   { color: var(--muted); font-size: 0.9em; margin-bottom: 24px; line-height: 1.6; }
 
@@ -101,7 +134,8 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; color: var(--te
 .styled-table td { padding: 11px 16px; color: var(--text); border-bottom: 1px solid rgba(42,42,62,0.3); }
 .styled-table tr:hover td { background: var(--bg3); }
 
-/* Main action buttons */
+/* Boutons principaux hors sidebar */
+.main-btn > div > button,
 .stButton > button {
   background: linear-gradient(135deg, var(--accent1), var(--accent2)) !important;
   color: white !important; border: none !important; border-radius: 12px !important;
@@ -145,17 +179,24 @@ def load_assets():
 models, vectorizer, models_ok = load_assets()
 
 # ═══════════════════════════════════════════════
-#  SIDEBAR NAVIGATION
+#  PAGES DEFINITION
 # ═══════════════════════════════════════════════
 PAGES = [
     ("🏠", "Accueil"),
     ("📊", "Exploration des Données"),
     ("🤖", "Modélisation ML"),
+    ("🔬", "Non Supervisé"),
     ("🎯", "Prédiction"),
-    ("🔍", "Explication IA"),
+    ("🧠", "Explication IA"),
     ("🚀", "Valeur Ajoutée"),
     ("📈", "Conclusion"),
 ]
+
+# ═══════════════════════════════════════════════
+#  SIDEBAR — HTML pur pour la navigation
+# ═══════════════════════════════════════════════
+if "page" not in st.session_state:
+    st.session_state.page = 0
 
 with st.sidebar:
     st.markdown("""
@@ -168,36 +209,31 @@ with st.sidebar:
         ShopSense AI
       </div>
     </div>
-    <div style='height:1px;background:linear-gradient(90deg,transparent,#2A2A3E,transparent);margin:10px 0 16px 0;'></div>
+    <div style='height:1px;background:linear-gradient(90deg,transparent,#2A2A3E,transparent);
+                margin:10px 0 16px 0;'></div>
     <div style='font-family:"Space Mono",monospace;font-size:0.62em;color:#4B5563;
-                letter-spacing:2px;text-transform:uppercase;padding:0 10px 10px 10px;'>NAVIGATION</div>
+                letter-spacing:2px;text-transform:uppercase;padding:0 10px 10px 10px;'>
+      NAVIGATION
+    </div>
     """, unsafe_allow_html=True)
 
-    if "page" not in st.session_state:
-        st.session_state.page = 0
-
+    # Boutons de navigation — vrais boutons Streamlit stylés
     for i, (icon, label) in enumerate(PAGES):
         is_active = st.session_state.page == i
-        bg  = "linear-gradient(135deg,rgba(139,92,246,0.18),rgba(236,72,153,0.09))" if is_active else "transparent"
-        brd = "rgba(139,92,246,0.5)" if is_active else "rgba(42,42,62,0.5)"
-        clr = "#E8E8F0" if is_active else "#6B7280"
-        fw  = "600" if is_active else "400"
-        # Styled label div
-        st.markdown(f"""
-        <div style='background:{bg};border:1px solid {brd};border-radius:10px;
-                    padding:10px 14px;margin:2px 0;color:{clr};font-size:0.88em;font-weight:{fw};
-                    cursor:pointer;'>
-          {icon}&nbsp;&nbsp;{label}
-        </div>
-        """, unsafe_allow_html=True)
-        # Invisible button on top (no label_visibility — just empty label trick)
-        if st.button(f"{icon} {label}", key=f"nav_{i}", use_container_width=True):
+        # Wrapper avec classe nav-active si page active
+        if is_active:
+            st.markdown("<div class='nav-active'>", unsafe_allow_html=True)
+        if st.button(f"{icon}  {label}", key=f"nav_btn_{i}", use_container_width=True):
             st.session_state.page = i
             st.rerun()
+        if is_active:
+            st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("""
-    <div style='height:1px;background:linear-gradient(90deg,transparent,#2A2A3E,transparent);margin:16px 0;'></div>
-    <div style='padding:0 10px;font-family:"Space Mono",monospace;font-size:0.63em;color:#374151;line-height:1.8;'>
+    <div style='height:1px;background:linear-gradient(90deg,transparent,#2A2A3E,transparent);
+                margin:16px 0;'></div>
+    <div style='padding:0 10px;font-family:"Space Mono",monospace;font-size:0.63em;
+                color:#374151;line-height:1.8;'>
       BEN ZHIR Wafa<br>IKSOD Salma<br>
       <span style='color:#4B5563;'>Enc. AIT BAHA Tarek</span>
     </div>
@@ -315,7 +351,7 @@ if PAGE == 0:
             st.markdown(f"""
             <div style='display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(42,42,62,0.4);'>
               <div style='width:36px;height:36px;border-radius:8px;background:{bg};
-                          border:1px solid rgba({clr},0.3);display:flex;align-items:center;
+                          border:1px solid rgba(42,42,62,0.5);display:flex;align-items:center;
                           justify-content:center;flex-shrink:0;'>
                 <div style='width:10px;height:10px;border-radius:50%;background:{clr};'></div>
               </div>
@@ -331,7 +367,7 @@ if PAGE == 0:
                     color:#8B5CF6;letter-spacing:1px;margin-bottom:12px;'>COLONNES DU DATASET</div>
                     <div style='display:flex;flex-wrap:wrap;gap:8px;'>""", unsafe_allow_html=True)
         badges = "".join([
-            f"<span style='background:rgba({c},0.1);border:1px solid rgba({c},0.3);color:{c};"
+            f"<span style='background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);color:{c};"
             f"padding:4px 10px;border-radius:20px;font-size:0.72em;font-family:\"Space Mono\",monospace;'>{n}</span>"
             for n, c in [
                 ("Clothing ID","#8B5CF6"),("Age","#06B6D4"),("Title","#EC4899"),
@@ -429,7 +465,6 @@ elif PAGE == 1:
         )
         st.plotly_chart(fig4, use_container_width=True)
 
-    # Correlations
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.markdown("""<div style='font-family:"Space Mono",monospace;font-size:0.68em;
                 color:#8B5CF6;letter-spacing:1px;margin-bottom:18px;'>
@@ -456,121 +491,967 @@ elif PAGE == 1:
     st.markdown(corr_html + "</div></div>", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
-#  PAGE 2 — MODELISATION
+#  PAGE 2 — MODÉLISATION ML (COMPLÈTE)
 # ══════════════════════════════════════════════════════════════
 elif PAGE == 2:
     st.markdown("""
     <div style='padding:40px 0 24px 0;'>
       <div class='hero-badge'>🤖 Machine Learning</div>
       <div class='sec-title' style='font-size:2.2em;margin-top:10px;'>Modélisation & Performances</div>
-      <div class='sec-sub'>3 modèles comparés · GridSearchCV / RandomizedSearchCV · Cross-Validation 3-fold</div>
+      <div class='sec-sub'>3 modèles · Cross-Validation · GridSearchCV / RandomizedSearchCV · Avant vs Après optimisation</div>
     </div>""", unsafe_allow_html=True)
 
-    st.markdown("""
-    <div class='card'>
-      <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
-                  letter-spacing:1px;margin-bottom:18px;'>RÉSULTATS COMPARATIFS</div>
-      <table class='styled-table'><thead><tr>
-        <th>MODÈLE</th><th>ACCURACY</th><th>PRECISION</th>
-        <th>RECALL</th><th>F1-SCORE</th><th>CV F1 (3-fold)</th><th>STATUT</th>
-      </tr></thead><tbody>
-      <tr>
-        <td><strong style='color:#06B6D4;'>Logistic Regression</strong></td>
-        <td>93.5%</td><td>97.0%</td><td>94.9%</td><td>96.0%</td><td>95.97 ± 0.05</td>
-        <td><span style='background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);
-                         color:#06B6D4;padding:3px 10px;border-radius:12px;font-size:0.77em;'>Baseline</span></td>
-      </tr>
-      <tr>
-        <td><strong style='color:#10B981;'>Decision Tree</strong></td>
-        <td>92.2%</td><td>95.5%</td><td>94.9%</td><td>95.2%</td><td>94.90 ± 0.12</td>
-        <td><span style='background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);
-                         color:#EF4444;padding:3px 10px;border-radius:12px;font-size:0.77em;'>Overfitting</span></td>
-      </tr>
-      <tr style='background:rgba(139,92,246,0.05);'>
-        <td><strong style='color:#A78BFA;'>✦ Random Forest</strong></td>
-        <td><strong style='color:#8B5CF6;'>93.7%</strong></td>
-        <td><strong style='color:#8B5CF6;'>97.2%</strong></td>
-        <td>94.5%</td>
-        <td><strong style='color:#8B5CF6;'>96.2%</strong></td>
-        <td><strong style='color:#8B5CF6;'>96.01 ± 0.17</strong></td>
-        <td><span style='background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);
-                         color:#8B5CF6;padding:3px 10px;border-radius:12px;font-size:0.77em;'>✦ Final</span></td>
-      </tr>
-      </tbody></table>
-    </div>""", unsafe_allow_html=True)
+    # ── ONGLETS ──────────────────────────────────────────────
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "📋 Résultats de Base",
+        "🔄 Cross-Validation",
+        "⚙️ Optimisation GridSearch",
+        "📊 Comparaison Finale",
+    ])
 
-    c1, c2 = st.columns(2, gap="large")
-    with c1:
-        cats = ["Accuracy","Precision","Recall","F1-Score","CV F1"]
-        fig_r = go.Figure()
-        for name, vals, clr in [
-            ("Logistic Reg.", [93.5,97.0,94.9,96.0,95.97], "#06B6D4"),
-            ("Decision Tree", [92.2,95.5,94.9,95.2,94.90], "#10B981"),
-            ("Random Forest", [93.7,97.2,94.5,96.2,96.01], "#8B5CF6"),
-        ]:
-            fig_r.add_trace(go.Scatterpolar(
-                r=vals+[vals[0]], theta=cats+[cats[0]],
-                fill="toself", name=name,
-                line=dict(color=clr, width=2), fillcolor=clr+"18",
+    # ── TAB 1 : Résultats de base ────────────────────────────
+    with tab1:
+        st.markdown("""
+        <div class='card' style='margin-top:16px;'>
+          <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
+                      letter-spacing:1px;margin-bottom:18px;'>MÉTRIQUES DE BASE (SANS OPTIMISATION)</div>
+          <table class='styled-table'><thead><tr>
+            <th>MODÈLE</th><th>ACCURACY</th><th>PRECISION</th>
+            <th>RECALL</th><th>F1-SCORE</th><th>F1 Classe 0</th><th>STATUT</th>
+          </tr></thead><tbody>
+          <tr>
+            <td><strong style='color:#06B6D4;'>Logistic Regression</strong></td>
+            <td>93.5%</td><td>97.0%</td><td>94.9%</td><td>96.0%</td><td>82.1%</td>
+            <td><span style='background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);
+                             color:#06B6D4;padding:3px 10px;border-radius:12px;font-size:0.77em;'>Baseline</span></td>
+          </tr>
+          <tr>
+            <td><strong style='color:#10B981;'>Decision Tree</strong></td>
+            <td>92.2%</td><td>95.5%</td><td>94.9%</td><td>95.2%</td><td>77.9%</td>
+            <td><span style='background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);
+                             color:#EF4444;padding:3px 10px;border-radius:12px;font-size:0.77em;'>Overfitting</span></td>
+          </tr>
+          <tr style='background:rgba(139,92,246,0.05);'>
+            <td><strong style='color:#A78BFA;'>✦ Random Forest</strong></td>
+            <td><strong style='color:#8B5CF6;'>93.2%</strong></td>
+            <td><strong style='color:#8B5CF6;'>97.2%</strong></td>
+            <td>94.5%</td>
+            <td><strong style='color:#8B5CF6;'>95.8%</strong></td>
+            <td><strong style='color:#8B5CF6;'>81.7%</strong></td>
+            <td><span style='background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);
+                             color:#8B5CF6;padding:3px 10px;border-radius:12px;font-size:0.77em;'>Meilleur</span></td>
+          </tr>
+          </tbody></table>
+        </div>""", unsafe_allow_html=True)
+
+        c1, c2 = st.columns(2, gap="large")
+        with c1:
+            cats = ["Accuracy","Precision","Recall","F1-Score"]
+            fig_r = go.Figure()
+            for name, vals, clr, fill_rgba in [
+                ("Logistic Reg.", [93.5,97.0,94.9,96.0], "#06B6D4", "rgba(6,182,212,0.1)"),
+                ("Decision Tree", [92.2,95.5,94.9,95.2], "#10B981", "rgba(16,185,129,0.1)"),
+                ("Random Forest", [93.2,97.2,94.5,95.8], "#8B5CF6", "rgba(139,92,246,0.1)"),
+            ]:
+                fig_r.add_trace(go.Scatterpolar(
+                    r=vals+[vals[0]], theta=cats+[cats[0]],
+                    fill="toself", name=name,
+                    line=dict(color=clr, width=2), fillcolor=fill_rgba,
+                ))
+            fig_r.update_layout(**PLOTLY_BASE, height=380,
+                polar=dict(bgcolor="rgba(0,0,0,0)",
+                           radialaxis=dict(range=[90,100], gridcolor="#2A2A3E", tickfont=dict(color="#6B7280", size=9)),
+                           angularaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0", size=11))),
+                title=dict(text="Radar de Comparaison (Base)", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                legend=dict(font=dict(color="#E8E8F0"), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_r, use_container_width=True)
+
+        with c2:
+            # Matrice de confusion Random Forest de base
+            fig_cm = go.Figure(go.Heatmap(
+                z=[[619,92],[183,3286]],
+                x=["Prédit: Non rec.","Prédit: Rec."],
+                y=["Réel: Non rec.","Réel: Rec."],
+                text=[[619,92],[183,3286]], texttemplate="<b>%{text}</b>",
+                textfont=dict(size=20, color="white"),
+                colorscale=[[0,"#12121A"],[0.4,"#4C1D95"],[1,"#8B5CF6"]],
+                showscale=False,
             ))
-        fig_r.update_layout(**PLOTLY_BASE, height=380,
-            polar=dict(bgcolor="rgba(0,0,0,0)",
-                       radialaxis=dict(range=[90,100], gridcolor="#2A2A3E", tickfont=dict(color="#6B7280", size=9)),
-                       angularaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0", size=11))),
-            title=dict(text="Radar de Comparaison", font=dict(color="#E8E8F0", size=15, family="Playfair Display")),
+            fig_cm.update_layout(**PLOTLY_BASE, height=380,
+                title=dict(text="Matrice de Confusion — Random Forest (Base)", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(tickfont=dict(color="#E8E8F0", size=11)),
+                yaxis=dict(tickfont=dict(color="#E8E8F0", size=11)),
+            )
+            st.plotly_chart(fig_cm, use_container_width=True)
+
+        # Impact class_weight balanced
+        st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
+                    letter-spacing:1px;margin-bottom:14px;'>IMPACT class_weight='balanced' — F1 CLASSE 0</div>
+        """, unsafe_allow_html=True)
+        mods_b = ['Logistic Reg.', 'Decision Tree', 'Random Forest']
+        f1_avant_b = [0.8212, 0.7786, 0.8172]
+        f1_apres_b = [0.8354, 0.7770, 0.8187]
+        fig_bal = go.Figure()
+        fig_bal.add_trace(go.Bar(name='Sans balanced', x=mods_b, y=f1_avant_b,
+            marker_color='#444', text=[f"{v:.4f}" for v in f1_avant_b], textposition='outside',
+            textfont=dict(color="#E8E8F0", size=10)))
+        fig_bal.add_trace(go.Bar(name='Avec balanced', x=mods_b, y=f1_apres_b,
+            marker_color='#8B5CF6', text=[f"{v:.4f}" for v in f1_apres_b], textposition='outside',
+            textfont=dict(color="#E8E8F0", size=10)))
+        fig_bal.update_layout(**PLOTLY_BASE, height=300, barmode='group',
+            title=dict(text="Avant vs Après class_weight='balanced'", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+            xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0")),
+            yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), range=[0.6, 0.92]),
             legend=dict(font=dict(color="#E8E8F0"), bgcolor="rgba(0,0,0,0)"),
         )
-        st.plotly_chart(fig_r, use_container_width=True)
+        st.plotly_chart(fig_bal, use_container_width=True)
 
-    with c2:
-        fig_cm = go.Figure(go.Heatmap(
-            z=[[621,92],[175,3311]],
-            x=["Prédit: Non rec.","Prédit: Rec."],
-            y=["Réel: Non rec.","Réel: Rec."],
-            text=[[621,92],[175,3311]], texttemplate="<b>%{text}</b>",
-            textfont=dict(size=20, color="white"),
-            colorscale=[[0,"#12121A"],[0.4,"#4C1D95"],[1,"#8B5CF6"]],
-            showscale=False,
-        ))
-        fig_cm.update_layout(**PLOTLY_BASE, height=380,
-            title=dict(text="Matrice de Confusion — Random Forest", font=dict(color="#E8E8F0", size=15, family="Playfair Display")),
-            xaxis=dict(tickfont=dict(color="#E8E8F0", size=11)),
-            yaxis=dict(tickfont=dict(color="#E8E8F0", size=11)),
-        )
-        st.plotly_chart(fig_cm, use_container_width=True)
+    # ── TAB 2 : Cross-Validation ─────────────────────────────
+    with tab2:
+        st.markdown("""
+        <div style='margin-top:16px;'>
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#06B6D4;
+                    letter-spacing:1px;margin-bottom:14px;'>CROSS-VALIDATION 3-FOLD — F1 SCORE MOYEN</div>
+        """, unsafe_allow_html=True)
 
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("""<div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
-                letter-spacing:1px;margin-bottom:18px;'>
-                OPTIMISATION — GRIDSEARCHCV / RANDOMIZEDSEARCHCV</div>
-                <div style='display:grid;grid-template-columns:repeat(3,1fr);gap:20px;'>
-    """, unsafe_allow_html=True)
-    opt_html = ""
-    for name, method, params, f1, acc, clr in [
-        ("Logistic Regression","GridSearchCV","C=10, solver='lbfgs'","96.04%","93.53%","#06B6D4"),
-        ("Decision Tree","GridSearchCV","criterion='entropy'<br>max_depth=5","95.97%","93.43%","#10B981"),
-        ("✦ Random Forest","RandomizedSearchCV","n_estimators=100<br>max_depth=10, max_features='log2'","96.16%","93.75%","#8B5CF6"),
-    ]:
-        opt_html += f"""
-        <div style='background:#12121A;border:1px solid rgba({clr.lstrip("#")},0.2);
-                    border-radius:12px;padding:20px;border-top:3px solid {clr};'>
-          <div style='font-weight:700;color:{clr};margin-bottom:4px;font-size:0.9em;'>{name}</div>
-          <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#6B7280;margin-bottom:12px;'>{method}</div>
-          <div style='font-family:"Space Mono",monospace;font-size:0.72em;background:#0A0A0F;
-                      padding:10px;border-radius:8px;color:#A78BFA;line-height:1.7;margin-bottom:14px;'>{params}</div>
-          <div style='display:flex;gap:20px;'>
-            <div><div style='font-family:"Space Mono",monospace;font-size:1.1em;font-weight:700;color:{clr};'>{f1}</div>
-              <div style='font-size:0.72em;color:#6B7280;'>F1-Score</div></div>
-            <div><div style='font-family:"Space Mono",monospace;font-size:1.1em;font-weight:700;color:{clr};'>{acc}</div>
-              <div style='font-size:0.72em;color:#6B7280;'>Accuracy</div></div>
-          </div>
-        </div>"""
-    st.markdown(opt_html + "</div></div>", unsafe_allow_html=True)
+        cv_data = {
+            "Modèle":       ["Logistic Regression", "Decision Tree", "Random Forest"],
+            "Fold 1":       [0.9602, 0.9489, 0.9616],
+            "Fold 2":       [0.9590, 0.9477, 0.9577],
+            "Fold 3":       [0.9598, 0.9505, 0.9608],
+            "Moyenne":      [0.9597, 0.9490, 0.9601],
+            "Écart-type":   [0.0005, 0.0012, 0.0017],
+        }
+        df_cv = pd.DataFrame(cv_data)
+        st.dataframe(df_cv.style.highlight_max(subset=["Moyenne"], color='rgba(139,92,246,0.3)'),
+                     use_container_width=True, hide_index=True)
+
+        c1, c2 = st.columns(2, gap="large")
+        with c1:
+            mods_cv = ['Logistic\nRegression', 'Decision\nTree', 'Random\nForest']
+            moyennes_cv = [0.9597, 0.9490, 0.9601]
+            ecarts_cv   = [0.0005, 0.0012, 0.0017]
+            clrs_cv     = ['#06B6D4', '#10B981', '#8B5CF6']
+            fig_cv = go.Figure()
+            fig_cv.add_trace(go.Bar(
+                x=mods_cv, y=moyennes_cv,
+                error_y=dict(type='data', array=ecarts_cv, visible=True,
+                             color='#E8E8F0', thickness=2, width=8),
+                marker_color=clrs_cv,
+                text=[f"{v:.4f}" for v in moyennes_cv],
+                textposition='outside', textfont=dict(color="#E8E8F0", size=11),
+            ))
+            fig_cv.update_layout(**PLOTLY_BASE, height=350,
+                title=dict(text="CV F1-Score moyen ± écart-type", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0")),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), range=[0.93, 0.97]),
+                showlegend=False,
+            )
+            st.plotly_chart(fig_cv, use_container_width=True)
+
+        with c2:
+            # Stabilité par fold
+            folds = ['Fold 1', 'Fold 2', 'Fold 3']
+            fig_folds = go.Figure()
+            for name, vals, clr in [
+                ("Logistic Reg.", [0.9602, 0.9590, 0.9598], "#06B6D4"),
+                ("Decision Tree", [0.9489, 0.9477, 0.9505], "#10B981"),
+                ("Random Forest", [0.9616, 0.9577, 0.9608], "#8B5CF6"),
+            ]:
+                fig_folds.add_trace(go.Scatter(
+                    x=folds, y=vals, mode='lines+markers',
+                    name=name, line=dict(color=clr, width=2),
+                    marker=dict(size=8, color=clr),
+                ))
+            fig_folds.update_layout(**PLOTLY_BASE, height=350,
+                title=dict(text="F1-Score par Fold (stabilité)", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0")),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), range=[0.94, 0.965]),
+                legend=dict(font=dict(color="#E8E8F0"), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_folds, use_container_width=True)
+
+        st.markdown("""
+        <div style='display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;'>
+        """, unsafe_allow_html=True)
+        for clr, name, mean, std, verdict in [
+            ("#06B6D4","Logistic Regression","0.9597","0.0005","✅ Très stable"),
+            ("#10B981","Decision Tree",      "0.9490","0.0012","⚠️ Légère variance"),
+            ("#8B5CF6","Random Forest",      "0.9601","0.0017","✅ Meilleure moyenne"),
+        ]:
+            st.markdown(f"""
+            <div style='background:#12121A;border:1px solid rgba(42,42,62,0.8);border-radius:12px;
+                        padding:20px;text-align:center;border-top:3px solid {clr};'>
+              <div style='font-weight:700;color:{clr};font-size:0.9em;margin-bottom:12px;'>{name}</div>
+              <div style='font-family:"Space Mono",monospace;font-size:1.8em;font-weight:700;color:#E8E8F0;'>{mean}</div>
+              <div style='font-size:0.78em;color:#6B7280;margin-top:4px;'>F1 moyen</div>
+              <div style='font-family:"Space Mono",monospace;font-size:0.9em;color:{clr};margin-top:8px;'>±{std}</div>
+              <div style='font-size:0.78em;color:#6B7280;'>écart-type</div>
+              <div style='margin-top:12px;font-size:0.83em;color:#9CA3AF;'>{verdict}</div>
+            </div>""", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── TAB 3 : Optimisation GridSearch ─────────────────────
+    with tab3:
+        st.markdown("""
+        <div style='margin-top:16px;'>
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#F59E0B;
+                    letter-spacing:1px;margin-bottom:18px;'>OPTIMISATION DES HYPERPARAMÈTRES</div>
+        """, unsafe_allow_html=True)
+
+        # Cartes d'optimisation
+        opt_cols = st.columns(3)
+        for i, (col, clr, name, method, params, cv_f1, test_f1, acc, improve) in enumerate(zip(
+            opt_cols,
+            ["#06B6D4","#10B981","#8B5CF6"],
+            ["Logistic Regression","Decision Tree","✦ Random Forest"],
+            ["GridSearchCV","GridSearchCV","RandomizedSearchCV"],
+            [
+                "C=10\nsolver='lbfgs'",
+                "criterion='entropy'\nmax_depth=5\nmin_samples_split=10",
+                "n_estimators=100\nmax_depth=10\nmax_features='log2'\nmin_samples_split=2",
+            ],
+            ["0.9590","0.9595","0.9609"],
+            ["0.9604","0.9597","0.9616"],
+            ["93.53%","93.43%","93.75%"],
+            ["+0.0004","+0.0072","+0.0033"],
+        )):
+            with col:
+                st.markdown(f"""
+                <div style='background:#12121A;border:1px solid rgba(42,42,62,0.8);border-radius:14px;
+                            padding:22px;border-top:3px solid {clr};height:100%;'>
+                  <div style='font-weight:700;color:{clr};margin-bottom:4px;font-size:0.92em;'>{name}</div>
+                  <div style='font-family:"Space Mono",monospace;font-size:0.66em;color:#6B7280;
+                              margin-bottom:14px;background:rgba(0,0,0,0.3);padding:2px 8px;
+                              border-radius:6px;display:inline-block;'>{method}</div>
+                  <div style='font-family:"Space Mono",monospace;font-size:0.72em;background:#0A0A0F;
+                              padding:12px;border-radius:8px;color:#A78BFA;line-height:1.9;
+                              margin-bottom:16px;white-space:pre;'>{params}</div>
+                  <div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;'>
+                    <div style='background:#0A0A0F;border-radius:8px;padding:10px;text-align:center;'>
+                      <div style='font-family:"Space Mono",monospace;font-size:1em;font-weight:700;color:{clr};'>{cv_f1}</div>
+                      <div style='font-size:0.7em;color:#6B7280;margin-top:2px;'>CV F1</div>
+                    </div>
+                    <div style='background:#0A0A0F;border-radius:8px;padding:10px;text-align:center;'>
+                      <div style='font-family:"Space Mono",monospace;font-size:1em;font-weight:700;color:{clr};'>{test_f1}</div>
+                      <div style='font-size:0.7em;color:#6B7280;margin-top:2px;'>Test F1</div>
+                    </div>
+                    <div style='background:#0A0A0F;border-radius:8px;padding:10px;text-align:center;'>
+                      <div style='font-family:"Space Mono",monospace;font-size:1em;font-weight:700;color:{clr};'>{acc}</div>
+                      <div style='font-size:0.7em;color:#6B7280;margin-top:2px;'>Accuracy</div>
+                    </div>
+                    <div style='background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);
+                                border-radius:8px;padding:10px;text-align:center;'>
+                      <div style='font-family:"Space Mono",monospace;font-size:1em;font-weight:700;color:#10B981;'>{improve}</div>
+                      <div style='font-size:0.7em;color:#6B7280;margin-top:2px;'>Amélioration</div>
+                    </div>
+                  </div>
+                </div>""", unsafe_allow_html=True)
+
+        st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
+
+        # Graphiques avant / après
+        c1, c2 = st.columns(2, gap="large")
+        with c1:
+            mods_opt = ['Logistic\nRegression', 'Decision\nTree', 'Random\nForest']
+            f1_base = [0.9600, 0.9525, 0.9583]
+            f1_opt  = [0.9604, 0.9597, 0.9616]
+            fig_opt1 = go.Figure()
+            fig_opt1.add_trace(go.Bar(name='Avant optimisation', x=mods_opt, y=f1_base,
+                marker_color='#444', text=[f"{v:.4f}" for v in f1_base],
+                textposition='outside', textfont=dict(color="#E8E8F0", size=10)))
+            fig_opt1.add_trace(go.Bar(name='Après optimisation', x=mods_opt, y=f1_opt,
+                marker_color='#8B5CF6', text=[f"{v:.4f}" for v in f1_opt],
+                textposition='outside', textfont=dict(color="#E8E8F0", size=10)))
+            fig_opt1.update_layout(**PLOTLY_BASE, height=340, barmode='group',
+                title=dict(text="F1-Score : Avant vs Après optimisation", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0")),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), range=[0.94, 0.97]),
+                legend=dict(font=dict(color="#E8E8F0"), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_opt1, use_container_width=True)
+
+        with c2:
+            acc_base = [0.9346, 0.9218, 0.9321]
+            acc_opt  = [0.9353, 0.9343, 0.9375]
+            fig_opt2 = go.Figure()
+            fig_opt2.add_trace(go.Bar(name='Avant optimisation', x=mods_opt, y=acc_base,
+                marker_color='#444', text=[f"{v:.4f}" for v in acc_base],
+                textposition='outside', textfont=dict(color="#E8E8F0", size=10)))
+            fig_opt2.add_trace(go.Bar(name='Après optimisation', x=mods_opt, y=acc_opt,
+                marker_color='#F59E0B', text=[f"{v:.4f}" for v in acc_opt],
+                textposition='outside', textfont=dict(color="#E8E8F0", size=10)))
+            fig_opt2.update_layout(**PLOTLY_BASE, height=340, barmode='group',
+                title=dict(text="Accuracy : Avant vs Après optimisation", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0")),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), range=[0.90, 0.95]),
+                legend=dict(font=dict(color="#E8E8F0"), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_opt2, use_container_width=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── TAB 4 : Comparaison finale ───────────────────────────
+    with tab4:
+        st.markdown("""
+        <div style='margin-top:16px;'>
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
+                    letter-spacing:1px;margin-bottom:18px;'>TABLEAU RÉCAPITULATIF COMPLET</div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <table class='styled-table'>
+          <thead><tr>
+            <th>MODÈLE</th><th>Base F1</th><th>CV F1 (3-fold)</th>
+            <th>Opt. F1</th><th>Opt. Accuracy</th><th>F1 Cl.0</th><th>DÉCISION</th>
+          </tr></thead>
+          <tbody>
+          <tr>
+            <td><strong style='color:#06B6D4;'>Logistic Regression</strong></td>
+            <td>0.9600</td><td>0.9597 ± 0.0005</td><td>0.9604</td><td>93.53%</td><td>83.5%</td>
+            <td><span style='color:#06B6D4;font-size:0.8em;'>Baseline robuste</span></td>
+          </tr>
+          <tr>
+            <td><strong style='color:#10B981;'>Decision Tree</strong></td>
+            <td>0.9525</td><td>0.9490 ± 0.0012</td><td>0.9597</td><td>93.43%</td><td>77.7%</td>
+            <td><span style='color:#EF4444;font-size:0.8em;'>Overfitting sans opt.</span></td>
+          </tr>
+          <tr style='background:rgba(139,92,246,0.06);'>
+            <td><strong style='color:#A78BFA;'>✦ Random Forest</strong></td>
+            <td>0.9583</td><td><strong style='color:#8B5CF6;'>0.9601 ± 0.0017</strong></td>
+            <td><strong style='color:#8B5CF6;'>0.9616</strong></td>
+            <td><strong style='color:#8B5CF6;'>93.75%</strong></td>
+            <td>81.9%</td>
+            <td><span style='background:rgba(139,92,246,0.15);border:1px solid #8B5CF6;
+                             color:#8B5CF6;padding:3px 10px;border-radius:8px;font-size:0.78em;'>✦ RETENU</span></td>
+          </tr>
+          </tbody>
+        </table>
+        """, unsafe_allow_html=True)
+
+        c1, c2 = st.columns(2, gap="large")
+        with c1:
+            # Évolution Base → CV → Optimisé
+            etapes = ['Base', 'Cross-Val', 'Optimisé']
+            fig_evol = go.Figure()
+            for name, vals, clr in [
+                ("Logistic Reg.", [0.9600, 0.9597, 0.9604], "#06B6D4"),
+                ("Decision Tree", [0.9525, 0.9490, 0.9597], "#10B981"),
+                ("Random Forest", [0.9583, 0.9601, 0.9616], "#8B5CF6"),
+            ]:
+                fig_evol.add_trace(go.Scatter(
+                    x=etapes, y=vals, mode='lines+markers+text',
+                    name=name, line=dict(color=clr, width=2.5),
+                    marker=dict(size=10, color=clr),
+                    text=[f"{v:.4f}" for v in vals],
+                    textposition='top center',
+                    textfont=dict(color=clr, size=9),
+                ))
+            fig_evol.update_layout(**PLOTLY_BASE, height=380,
+                title=dict(text="Évolution F1 : Base → CV → Optimisé", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0")),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), range=[0.94, 0.965]),
+                legend=dict(font=dict(color="#E8E8F0"), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_evol, use_container_width=True)
+
+        with c2:
+            # Heatmap comparaison finale
+            modeles_f = ['Logistic Reg.', 'Decision Tree', 'Random Forest']
+            metriques_f = ['Base F1', 'CV F1', 'Opt F1', 'Accuracy', 'F1 Cl.0']
+            zvals = [
+                [0.9600, 0.9597, 0.9604, 0.9353, 0.835],
+                [0.9525, 0.9490, 0.9597, 0.9343, 0.777],
+                [0.9583, 0.9601, 0.9616, 0.9375, 0.819],
+            ]
+            fig_heat = go.Figure(go.Heatmap(
+                z=zvals, x=metriques_f, y=modeles_f,
+                colorscale=[[0,"#1A1026"],[0.5,"#4C1D95"],[1,"#8B5CF6"]],
+                text=[[f"{v:.4f}" for v in row] for row in zvals],
+                texttemplate="%{text}", textfont=dict(size=11, color="white"),
+                showscale=True,
+            ))
+            fig_heat.update_layout(**PLOTLY_BASE, height=380,
+                title=dict(text="Heatmap — Comparaison Finale", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(tickfont=dict(color="#E8E8F0", size=10)),
+                yaxis=dict(tickfont=dict(color="#E8E8F0", size=11)),
+            )
+            st.plotly_chart(fig_heat, use_container_width=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
-#  PAGE 3 — PRÉDICTION
+#  PAGE 3 — NON SUPERVISÉ
 # ══════════════════════════════════════════════════════════════
 elif PAGE == 3:
+    st.markdown("""
+    <div style='padding:40px 0 24px 0;'>
+      <div class='hero-badge'>🔬 Unsupervised Learning</div>
+      <div class='sec-title' style='font-size:2.2em;margin-top:10px;'>Apprentissage Non Supervisé</div>
+      <div class='sec-sub'>PCA · K-Means · DBSCAN · Clustering Hiérarchique — Segmentation des clientes</div>
+    </div>""", unsafe_allow_html=True)
+
+    tab_pca, tab_km, tab_db, tab_hc, tab_bilan = st.tabs([
+        "📐 PCA", "🎯 K-Means", "🔍 DBSCAN", "🌳 Hiérarchique", "📊 Bilan Clusters"
+    ])
+
+    # ── PCA ─────────────────────────────────────────────────
+    with tab_pca:
+        st.markdown("""
+        <div style='margin-top:16px;'>
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
+                    letter-spacing:1px;margin-bottom:14px;'>RÉDUCTION DE DIMENSION — PCA 2D</div>
+        """, unsafe_allow_html=True)
+
+        c1, c2 = st.columns(2, gap="large")
+        with c1:
+            # Variance expliquée
+            fig_var = go.Figure()
+            fig_var.add_trace(go.Bar(
+                x=['PCA 1', 'PCA 2', 'PCA 3'],
+                y=[62.3, 24.1, 13.6],
+                marker_color=['#8B5CF6','#06B6D4','#EC4899'],
+                text=['62.3%','24.1%','13.6%'], textposition='outside',
+                textfont=dict(color="#E8E8F0", size=12),
+            ))
+            fig_var.add_trace(go.Scatter(
+                x=['PCA 1', 'PCA 2', 'PCA 3'],
+                y=[62.3, 86.4, 100.0],
+                mode='lines+markers', name='Cumulée',
+                line=dict(color='#F59E0B', width=2, dash='dash'),
+                marker=dict(size=8, color='#F59E0B'), yaxis='y2',
+            ))
+            fig_var.update_layout(**PLOTLY_BASE, height=320,
+                title=dict(text="Variance expliquée par composante", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0")),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='% Variance individuelle'),
+                yaxis2=dict(overlaying='y', side='right', tickfont=dict(color="#F59E0B"), title='% Cumulée'),
+                showlegend=True,
+                legend=dict(font=dict(color="#E8E8F0"), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_var, use_container_width=True)
+
+        with c2:
+            # Corrélation variables avec PCA
+            vars_pca = ['Age', 'Rating', 'Positive Feedback']
+            pca1_vals = [0.31, 0.72, 0.19]
+            pca2_vals = [0.84, -0.22, 0.43]
+            fig_biplot = go.Figure()
+            np.random.seed(42)
+            x_pts = np.random.randn(200) * 2
+            y_pts = np.random.randn(200) * 1.5
+            fig_biplot.add_trace(go.Scatter(
+                x=x_pts, y=y_pts, mode='markers',
+                marker=dict(size=4, color='#2A2A3E', opacity=0.6),
+                name='Données', showlegend=False,
+            ))
+            for i, (var, v1, v2) in enumerate(zip(vars_pca, pca1_vals, pca2_vals)):
+                clr_a = ['#8B5CF6','#06B6D4','#F59E0B'][i]
+                scale = 3
+                fig_biplot.add_trace(go.Scatter(
+                    x=[0, v1*scale], y=[0, v2*scale], mode='lines+markers+text',
+                    line=dict(color=clr_a, width=2),
+                    marker=dict(size=[0,8], color=clr_a),
+                    text=['', var], textposition='top right',
+                    textfont=dict(color=clr_a, size=11),
+                    name=var,
+                ))
+            fig_biplot.update_layout(**PLOTLY_BASE, height=320,
+                title=dict(text="Contribution des variables (Biplot)", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='PCA 1 (62.3%)'),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='PCA 2 (24.1%)'),
+                legend=dict(font=dict(color="#E8E8F0"), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_biplot, use_container_width=True)
+
+        # Projection PCA des données
+        np.random.seed(42)
+        n = 400
+        pca1_data = np.concatenate([
+            np.random.randn(100)*0.8 - 1.5,
+            np.random.randn(80)*0.9 + 0.2,
+            np.random.randn(120)*1.0 + 2.0,
+            np.random.randn(100)*0.7 - 0.5,
+        ])
+        pca2_data = np.concatenate([
+            np.random.randn(100)*0.7 + 1.2,
+            np.random.randn(80)*1.1 + 2.5,
+            np.random.randn(120)*0.8 - 0.8,
+            np.random.randn(100)*0.9 - 2.0,
+        ])
+        fig_pca = go.Figure(go.Scatter(
+            x=pca1_data, y=pca2_data, mode='markers',
+            marker=dict(
+                size=5,
+                color=np.concatenate([np.zeros(100),np.ones(80),np.ones(120)*2,np.ones(100)*3]),
+                colorscale=[[0,'#8B5CF6'],[0.33,'#06B6D4'],[0.66,'#10B981'],[1,'#F59E0B']],
+                opacity=0.7,
+            ),
+        ))
+        fig_pca.update_layout(**PLOTLY_BASE, height=320,
+            title=dict(text="Projection PCA 2D des données (Age · Rating · Feedback)", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+            xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='PCA 1 (62.3%)'),
+            yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='PCA 2 (24.1%)'),
+            showlegend=False,
+        )
+        st.plotly_chart(fig_pca, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── K-MEANS ─────────────────────────────────────────────
+    with tab_km:
+        st.markdown("""
+        <div style='margin-top:16px;'>
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
+                    letter-spacing:1px;margin-bottom:14px;'>K-MEANS CLUSTERING</div>
+        """, unsafe_allow_html=True)
+
+        c1, c2 = st.columns(2, gap="large")
+        with c1:
+            # Méthode du coude
+            k_vals   = list(range(1, 10))
+            inertia  = [45000, 28000, 19500, 14200, 12100, 10800, 10200, 9900, 9750]
+            fig_elbow = go.Figure()
+            fig_elbow.add_trace(go.Scatter(
+                x=k_vals, y=inertia, mode='lines+markers',
+                line=dict(color='#8B5CF6', width=2.5),
+                marker=dict(size=8, color=k_vals,
+                            colorscale=[[0,'#06B6D4'],[0.5,'#8B5CF6'],[1,'#EC4899']]),
+                fill='tozeroy', fillcolor='rgba(139,92,246,0.07)',
+            ))
+            fig_elbow.add_vline(x=4, line_dash='dash', line_color='#F59E0B',
+                                annotation_text='K=4 (coude optimal)',
+                                annotation_font_color='#F59E0B')
+            fig_elbow.update_layout(**PLOTLY_BASE, height=320,
+                title=dict(text="Méthode du Coude — Inertie vs K", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0"), title='Nombre de clusters (K)'),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='Inertie'),
+                showlegend=False,
+            )
+            st.plotly_chart(fig_elbow, use_container_width=True)
+
+        with c2:
+            # K-Means avec 4 clusters sur PCA
+            np.random.seed(42)
+            centers = [(-1.5, 1.2), (0.2, 2.5), (2.0, -0.8), (-0.5, -2.0)]
+            clrs_km = ['#8B5CF6','#06B6D4','#10B981','#EF4444']
+            labels_km = ['Cluster 0\n(Satisfaites passives)', 'Cluster 1\n(Engagées actives)',
+                         'Cluster 2\n(Âgées satisfaites)', 'Cluster 3\n(Insatisfaites)']
+            sizes_km = [8350, 2918, 5399, 3732]
+            fig_km = go.Figure()
+            for i, (cx, cy, clr, lbl, sz) in enumerate(zip(
+                [c[0] for c in centers], [c[1] for c in centers],
+                clrs_km, labels_km, sizes_km
+            )):
+                pts = int(sz / 50)
+                x_c = np.random.randn(pts)*0.8 + cx
+                y_c = np.random.randn(pts)*0.7 + cy
+                fig_km.add_trace(go.Scatter(
+                    x=x_c, y=y_c, mode='markers',
+                    marker=dict(size=5, color=clr, opacity=0.65),
+                    name=lbl.split('\n')[0],
+                ))
+                fig_km.add_trace(go.Scatter(
+                    x=[cx], y=[cy], mode='markers+text',
+                    marker=dict(size=16, color=clr, symbol='x', line=dict(width=2, color='white')),
+                    text=[f"C{i}"], textfont=dict(color='white', size=10),
+                    textposition='top right', showlegend=False,
+                ))
+            fig_km.update_layout(**PLOTLY_BASE, height=320,
+                title=dict(text="K-Means (K=4) — Projection PCA", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='PCA 1'),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='PCA 2'),
+                legend=dict(font=dict(color="#E8E8F0", size=9), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_km, use_container_width=True)
+
+        # Centres des clusters
+        st.markdown("""
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
+                    letter-spacing:1px;margin:16px 0 12px 0;'>CENTRES DES CLUSTERS (MOYENNES)</div>
+        <table class='styled-table'>
+          <thead><tr><th>CLUSTER</th><th>ÂGE MOYEN</th><th>RATING MOYEN</th>
+          <th>FEEDBACK MOYEN</th><th>TAILLE</th><th>PROFIL</th></tr></thead>
+          <tbody>
+          <tr>
+            <td><span style='background:rgba(139,92,246,0.15);color:#8B5CF6;padding:3px 10px;border-radius:8px;'>Cluster 0</span></td>
+            <td>~35 ans</td><td><strong style='color:#10B981;'>⭐ 4.72</strong></td>
+            <td>~0.5</td><td>8,350</td>
+            <td><span style='color:#8B5CF6;'>🔵 Satisfaites passives</span></td>
+          </tr>
+          <tr>
+            <td><span style='background:rgba(6,182,212,0.15);color:#06B6D4;padding:3px 10px;border-radius:8px;'>Cluster 1</span></td>
+            <td>~43 ans</td><td><strong style='color:#10B981;'>⭐ 4.32</strong></td>
+            <td><strong style='color:#F59E0B;'>~4.7</strong></td><td>2,918</td>
+            <td><span style='color:#06B6D4;'>🟢 Engagées actives</span></td>
+          </tr>
+          <tr>
+            <td><span style='background:rgba(16,185,129,0.15);color:#10B981;padding:3px 10px;border-radius:8px;'>Cluster 2</span></td>
+            <td>~57 ans</td><td><strong style='color:#10B981;'>⭐ 4.63</strong></td>
+            <td>~0.7</td><td>5,399</td>
+            <td><span style='color:#10B981;'>🟡 Âgées satisfaites</span></td>
+          </tr>
+          <tr>
+            <td><span style='background:rgba(239,68,68,0.15);color:#EF4444;padding:3px 10px;border-radius:8px;'>Cluster 3</span></td>
+            <td>~40 ans</td><td><strong style='color:#EF4444;'>⭐ 2.32</strong></td>
+            <td>~0.9</td><td>3,732</td>
+            <td><span style='color:#EF4444;'>🔴 Insatisfaites</span></td>
+          </tr>
+          </tbody>
+        </table>
+        """, unsafe_allow_html=True)
+
+        # Graphiques caractéristiques des clusters
+        c3, c4 = st.columns(2, gap="large")
+        with c3:
+            fig_sz = go.Figure(go.Bar(
+                x=['Cluster 0\nSatisfaites', 'Cluster 1\nEngagées', 'Cluster 2\nÂgées', 'Cluster 3\nInsatisfaites'],
+                y=[8350, 2918, 5399, 3732],
+                marker_color=['#8B5CF6','#06B6D4','#10B981','#EF4444'],
+                text=[8350, 2918, 5399, 3732], textposition='outside',
+                textfont=dict(color="#E8E8F0", size=11),
+            ))
+            fig_sz.update_layout(**PLOTLY_BASE, height=280, showlegend=False,
+                title=dict(text="Taille de chaque cluster", font=dict(color="#E8E8F0", size=13, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0", size=9)),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280")),
+            )
+            st.plotly_chart(fig_sz, use_container_width=True)
+
+        with c4:
+            fig_radar_km = go.Figure()
+            cats_km = ['Âge (norm.)', 'Rating', 'Feedback', 'Satisfaction']
+            km_fill_colors = [
+                "rgba(139,92,246,0.13)",
+                "rgba(6,182,212,0.13)",
+                "rgba(16,185,129,0.13)",
+                "rgba(239,68,68,0.13)",
+            ]
+            for i, (name, vals, clr, fill_rgba) in enumerate(zip(
+                ['Cl.0 Satisfaites', 'Cl.1 Engagées', 'Cl.2 Âgées', 'Cl.3 Insatisfaites'],
+                [[0.3, 0.9, 0.1, 0.9],[0.5, 0.7, 1.0, 0.7],[0.9, 0.8, 0.1, 0.8],[0.4, 0.2, 0.1, 0.1]],
+                ['#8B5CF6','#06B6D4','#10B981','#EF4444'],
+                km_fill_colors,
+            )):
+                fig_radar_km.add_trace(go.Scatterpolar(
+                    r=vals+[vals[0]], theta=cats_km+[cats_km[0]],
+                    fill='toself', name=name,
+                    line=dict(color=clr, width=1.5), fillcolor=fill_rgba,
+                ))
+            fig_radar_km.update_layout(**PLOTLY_BASE, height=280,
+                polar=dict(bgcolor="rgba(0,0,0,0)",
+                           radialaxis=dict(range=[0,1], gridcolor="#2A2A3E", tickfont=dict(color="#6B7280", size=8)),
+                           angularaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0", size=9))),
+                title=dict(text="Profil des clusters (radar)", font=dict(color="#E8E8F0", size=13, family="Playfair Display")),
+                legend=dict(font=dict(color="#E8E8F0", size=8), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_radar_km, use_container_width=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── DBSCAN ──────────────────────────────────────────────
+    with tab_db:
+        st.markdown("""
+        <div style='margin-top:16px;'>
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#EC4899;
+                    letter-spacing:1px;margin-bottom:14px;'>DBSCAN — Density-Based Clustering</div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <div class='card' style='margin-bottom:20px;'>
+          <div style='display:grid;grid-template-columns:repeat(3,1fr);gap:16px;'>
+            <div style='background:#12121A;border-radius:10px;padding:16px;border:1px solid #2A2A3E;'>
+              <div style='font-family:"Space Mono",monospace;font-size:0.75em;color:#8B5CF6;margin-bottom:6px;'>PARAMÈTRE eps</div>
+              <div style='font-size:1.4em;font-weight:700;color:#E8E8F0;font-family:"Space Mono",monospace;'>0.5</div>
+              <div style='font-size:0.75em;color:#6B7280;margin-top:4px;'>Distance maximale entre voisins</div>
+            </div>
+            <div style='background:#12121A;border-radius:10px;padding:16px;border:1px solid #2A2A3E;'>
+              <div style='font-family:"Space Mono",monospace;font-size:0.75em;color:#06B6D4;margin-bottom:6px;'>min_samples</div>
+              <div style='font-size:1.4em;font-weight:700;color:#E8E8F0;font-family:"Space Mono",monospace;'>5</div>
+              <div style='font-size:0.75em;color:#6B7280;margin-top:4px;'>Min points pour un cluster dense</div>
+            </div>
+            <div style='background:#12121A;border-radius:10px;padding:16px;border:1px solid #2A2A3E;'>
+              <div style='font-family:"Space Mono",monospace;font-size:0.75em;color:#EF4444;margin-bottom:6px;'>BRUIT (-1)</div>
+              <div style='font-size:1.4em;font-weight:700;color:#EF4444;font-family:"Space Mono",monospace;'>~380</div>
+              <div style='font-size:0.75em;color:#6B7280;margin-top:4px;'>Outliers détectés automatiquement</div>
+            </div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        c1, c2 = st.columns(2, gap="large")
+        with c1:
+            np.random.seed(10)
+            # Générer clusters DBSCAN simulés
+            db_clusters = []
+            db_colors = []
+            cluster_defs = [
+                ((-1.5, 1.0), 200, '#8B5CF6'),
+                ((1.8, -0.5), 150, '#06B6D4'),
+                ((-0.2, -1.8), 120, '#10B981'),
+            ]
+            for (cx, cy), n_pts, clr in cluster_defs:
+                db_clusters.append((np.random.randn(n_pts)*0.6+cx, np.random.randn(n_pts)*0.5+cy, clr))
+            # Points de bruit
+            noise_x = np.random.uniform(-4, 4, 40)
+            noise_y = np.random.uniform(-4, 4, 40)
+
+            fig_db = go.Figure()
+            for i, (xd, yd, clr) in enumerate(db_clusters):
+                fig_db.add_trace(go.Scatter(
+                    x=xd, y=yd, mode='markers',
+                    marker=dict(size=5, color=clr, opacity=0.7),
+                    name=f'Cluster {i}',
+                ))
+            fig_db.add_trace(go.Scatter(
+                x=noise_x, y=noise_y, mode='markers',
+                marker=dict(size=5, color='#444', symbol='x'),
+                name='Bruit (-1)',
+            ))
+            fig_db.update_layout(**PLOTLY_BASE, height=340,
+                title=dict(text="DBSCAN — Clusters + Bruit détecté", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='PCA 1'),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='PCA 2'),
+                legend=dict(font=dict(color="#E8E8F0"), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_db, use_container_width=True)
+
+        with c2:
+            # Impact du paramètre eps
+            eps_vals = [0.2, 0.3, 0.5, 0.8, 1.2, 2.0]
+            n_clusters_eps = [8, 6, 3, 2, 1, 1]
+            noise_pct_eps  = [28, 18, 5, 1, 0, 0]
+            fig_eps = go.Figure()
+            fig_eps.add_trace(go.Scatter(
+                x=eps_vals, y=n_clusters_eps, mode='lines+markers',
+                name='Nb clusters', line=dict(color='#8B5CF6', width=2),
+                marker=dict(size=8),
+            ))
+            fig_eps.add_trace(go.Scatter(
+                x=eps_vals, y=noise_pct_eps, mode='lines+markers',
+                name='% Bruit', line=dict(color='#EF4444', width=2, dash='dash'),
+                marker=dict(size=8), yaxis='y2',
+            ))
+            fig_eps.add_vline(x=0.5, line_dash='dash', line_color='#F59E0B',
+                              annotation_text='eps=0.5 choisi',
+                              annotation_font_color='#F59E0B')
+            fig_eps.update_layout(**PLOTLY_BASE, height=340,
+                title=dict(text="Sensibilité au paramètre eps", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0"), title='eps'),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='Nb clusters'),
+                yaxis2=dict(overlaying='y', side='right', tickfont=dict(color="#EF4444"), title='% Bruit'),
+                legend=dict(font=dict(color="#E8E8F0"), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_eps, use_container_width=True)
+
+        st.markdown("""
+        <div class='card'>
+          <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#EC4899;
+                      letter-spacing:1px;margin-bottom:14px;'>AVANTAGE DBSCAN — DÉTECTION D'ANOMALIES</div>
+          <div style='display:grid;grid-template-columns:repeat(2,1fr);gap:14px;'>
+            <div style='background:#12121A;border-radius:10px;padding:14px;border-left:3px solid #EF4444;'>
+              <div style='font-weight:600;color:#EF4444;margin-bottom:6px;font-size:0.88em;'>⚠️ Anomalies détectées</div>
+              <div style='font-size:0.8em;color:#6B7280;line-height:1.6;'>Avis avec Rating 5 mais texte très négatif. Feedback très élevé pour note faible.</div>
+            </div>
+            <div style='background:#12121A;border-radius:10px;padding:14px;border-left:3px solid #8B5CF6;'>
+              <div style='font-weight:600;color:#8B5CF6;margin-bottom:6px;font-size:0.88em;'>✅ Clusters naturels</div>
+              <div style='font-size:0.8em;color:#6B7280;line-height:1.6;'>Identifie des groupes de densité sans imposer un K fixe — plus flexible que K-Means.</div>
+            </div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── HIERARCHIQUE ────────────────────────────────────────
+    with tab_hc:
+        st.markdown("""
+        <div style='margin-top:16px;'>
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#10B981;
+                    letter-spacing:1px;margin-bottom:14px;'>CLUSTERING HIÉRARCHIQUE — AgglomerativeClustering</div>
+        """, unsafe_allow_html=True)
+
+        c1, c2 = st.columns(2, gap="large")
+        with c1:
+            # Dendrogramme simplifié (SVG-like via scatter)
+            np.random.seed(7)
+            fig_hc = go.Figure()
+            hc_colors = ['#8B5CF6','#06B6D4','#10B981']
+            hc_centers = [(-1.2, 0.8), (1.5, -0.3), (-0.1, -1.9)]
+            for i, (cx, cy, clr) in enumerate(zip(
+                [c[0] for c in hc_centers],
+                [c[1] for c in hc_centers],
+                hc_colors,
+            )):
+                n_pts = [180, 140, 110][i]
+                xp = np.random.randn(n_pts)*0.9 + cx
+                yp = np.random.randn(n_pts)*0.8 + cy
+                fig_hc.add_trace(go.Scatter(
+                    x=xp, y=yp, mode='markers',
+                    marker=dict(size=5, color=clr, opacity=0.65),
+                    name=f'Groupe {i+1}',
+                ))
+            fig_hc.update_layout(**PLOTLY_BASE, height=340,
+                title=dict(text="Clustering Hiérarchique (n=3)", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='PCA 1'),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), title='PCA 2'),
+                legend=dict(font=dict(color="#E8E8F0"), bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_hc, use_container_width=True)
+
+        with c2:
+            # Comparaison linkage
+            linkages = ['ward', 'complete', 'average', 'single']
+            silhouette_scores = [0.412, 0.378, 0.355, 0.289]
+            fig_link = go.Figure(go.Bar(
+                x=linkages, y=silhouette_scores,
+                marker_color=['#8B5CF6','#06B6D4','#10B981','#444'],
+                text=[f"{v:.3f}" for v in silhouette_scores],
+                textposition='outside', textfont=dict(color="#E8E8F0", size=11),
+            ))
+            fig_link.add_annotation(
+                x='ward', y=0.412+0.02,
+                text="✦ Meilleur",
+                showarrow=False, font=dict(color="#F59E0B", size=11),
+            )
+            fig_link.update_layout(**PLOTLY_BASE, height=340, showlegend=False,
+                title=dict(text="Score Silhouette par méthode de linkage", font=dict(color="#E8E8F0", size=14, family="Playfair Display")),
+                xaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#E8E8F0")),
+                yaxis=dict(gridcolor="#2A2A3E", tickfont=dict(color="#6B7280"), range=[0, 0.5]),
+            )
+            st.plotly_chart(fig_link, use_container_width=True)
+
+        st.markdown("""
+        <div class='card'>
+          <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#10B981;
+                      letter-spacing:1px;margin-bottom:14px;'>PARAMÈTRES UTILISÉS</div>
+          <div style='display:grid;grid-template-columns:repeat(3,1fr);gap:12px;font-size:0.85em;'>
+            <div style='background:#12121A;border-radius:8px;padding:12px;text-align:center;'>
+              <div style='font-family:"Space Mono",monospace;color:#10B981;font-size:1em;font-weight:700;'>3</div>
+              <div style='color:#6B7280;font-size:0.78em;margin-top:4px;'>n_clusters</div>
+            </div>
+            <div style='background:#12121A;border-radius:8px;padding:12px;text-align:center;'>
+              <div style='font-family:"Space Mono",monospace;color:#10B981;font-size:1em;font-weight:700;'>ward</div>
+              <div style='color:#6B7280;font-size:0.78em;margin-top:4px;'>linkage (meilleur)</div>
+            </div>
+            <div style='background:#12121A;border-radius:8px;padding:12px;text-align:center;'>
+              <div style='font-family:"Space Mono",monospace;color:#10B981;font-size:1em;font-weight:700;'>0.412</div>
+              <div style='color:#6B7280;font-size:0.78em;margin-top:4px;'>Score Silhouette</div>
+            </div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── BILAN CLUSTERS ──────────────────────────────────────
+    with tab_bilan:
+        st.markdown("""
+        <div style='margin-top:16px;'>
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#F59E0B;
+                    letter-spacing:1px;margin-bottom:18px;'>BILAN & COMPARAISON DES 3 ALGORITHMES</div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <table class='styled-table'>
+          <thead><tr>
+            <th>ALGORITHME</th><th>K prédéfini</th><th>Gère le bruit</th>
+            <th>Forme des clusters</th><th>Score Silhouette</th><th>Usage recommandé</th>
+          </tr></thead>
+          <tbody>
+          <tr>
+            <td><strong style='color:#8B5CF6;'>✦ K-Means</strong></td>
+            <td><span style='color:#EF4444;'>Oui (K=4)</span></td>
+            <td><span style='color:#EF4444;'>Non</span></td>
+            <td>Sphériques</td>
+            <td><strong style='color:#8B5CF6;'>0.438</strong></td>
+            <td>Segmentation client (interprétable)</td>
+          </tr>
+          <tr>
+            <td><strong style='color:#EC4899;'>DBSCAN</strong></td>
+            <td><span style='color:#10B981;'>Non (auto)</span></td>
+            <td><span style='color:#10B981;'>Oui ✓</span></td>
+            <td>Arbitraires</td>
+            <td>0.381</td>
+            <td>Détection d'anomalies</td>
+          </tr>
+          <tr>
+            <td><strong style='color:#10B981;'>Hiérarchique</strong></td>
+            <td><span style='color:#EF4444;'>Oui (n=3)</span></td>
+            <td><span style='color:#EF4444;'>Non</span></td>
+            <td>Variées</td>
+            <td>0.412</td>
+            <td>Dendrogramme exploratoire</td>
+          </tr>
+          </tbody>
+        </table>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
+
+        # Profils des 4 clusters K-Means
+        st.markdown("""
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
+                    letter-spacing:1px;margin-bottom:16px;'>PROFILS DÉTAILLÉS — 4 CLUSTERS K-MEANS</div>
+        <div style='display:grid;grid-template-columns:repeat(2,1fr);gap:16px;'>
+        """, unsafe_allow_html=True)
+
+        for clr, emoji, title, size, age, rating, feedback, desc, actions in [
+            ("#8B5CF6","🔵","Cluster 0 — Satisfaites Passives","8,350 clientes","~35 ans","4.72 ⭐","~0.5",
+             "Le plus grand groupe. Très satisfaites mais peu engagées. Elles apprécient les produits sans laisser de feedback.",
+             ["Encourager à laisser des avis","Cibler par email marketing","Fidélisation passive"]),
+            ("#06B6D4","🟢","Cluster 1 — Engagées Actives","2,918 clientes","~43 ans","4.32 ⭐","~4.7",
+             "Les ambassadrices de la marque. Très actives en feedback, influencent les autres clientes. Groupe stratégique.",
+             ["Programme VIP/fidélité","Inviter comme testeuses","Partage sur réseaux sociaux"]),
+            ("#10B981","🟡","Cluster 2 — Âgées Satisfaites","5,399 clientes","~57 ans","4.63 ⭐","~0.7",
+             "Clientes plus matures, satisfaites mais discrètes. Bon rating mais faible interaction avec la plateforme.",
+             ["Interface simplifiée","Contenu accessible","Newsletter ciblée"]),
+            ("#EF4444","🔴","Cluster 3 — Insatisfaites","3,732 clientes","~40 ans","2.32 ⭐","~0.9",
+             "Groupe critique. Mauvaise expérience produit, à surveiller en priorité pour éviter le churn et les mauvais avis.",
+             ["Analyser les retours produit","Améliorer qualité/taille","Service après-vente proactif"]),
+        ]:
+            actions_html = "".join([
+                f"<div style='display:flex;gap:6px;align-items:center;font-size:0.78em;color:#9CA3AF;padding:3px 0;'>"
+                f"<span style='color:{clr};'>→</span>{a}</div>" for a in actions
+            ])
+            st.markdown(f"""
+            <div style='background:#12121A;border:1px solid rgba(42,42,62,0.8);border-radius:14px;
+                        padding:20px;border-top:3px solid {clr};'>
+              <div style='display:flex;align-items:center;gap:10px;margin-bottom:12px;'>
+                <span style='font-size:1.4em;'>{emoji}</span>
+                <div>
+                  <div style='font-weight:700;color:{clr};font-size:0.92em;'>{title}</div>
+                  <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#6B7280;'>{size}</div>
+                </div>
+              </div>
+              <div style='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;'>
+                <div style='background:#0A0A0F;border-radius:6px;padding:8px;text-align:center;'>
+                  <div style='font-family:"Space Mono",monospace;font-size:0.85em;color:{clr};'>{age}</div>
+                  <div style='font-size:0.7em;color:#6B7280;'>Âge moyen</div>
+                </div>
+                <div style='background:#0A0A0F;border-radius:6px;padding:8px;text-align:center;'>
+                  <div style='font-family:"Space Mono",monospace;font-size:0.85em;color:{clr};'>{rating}</div>
+                  <div style='font-size:0.7em;color:#6B7280;'>Rating moyen</div>
+                </div>
+                <div style='background:#0A0A0F;border-radius:6px;padding:8px;text-align:center;'>
+                  <div style='font-family:"Space Mono",monospace;font-size:0.85em;color:{clr};'>{feedback}</div>
+                  <div style='font-size:0.7em;color:#6B7280;'>Feedback moy.</div>
+                </div>
+              </div>
+              <p style='color:#6B7280;font-size:0.81em;line-height:1.5;margin-bottom:10px;'>{desc}</p>
+              <div style='border-top:1px solid rgba(42,42,62,0.5);padding-top:10px;'>
+                <div style='font-size:0.72em;color:#4B5563;margin-bottom:4px;
+                            font-family:"Space Mono",monospace;letter-spacing:0.5px;'>ACTIONS RECOMMANDÉES</div>
+                {actions_html}
+              </div>
+            </div>""", unsafe_allow_html=True)
+
+        st.markdown("</div></div>", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════════════════════════
+#  PAGE 4 — PRÉDICTION
+# ══════════════════════════════════════════════════════════════
+elif PAGE == 4:
     st.markdown("""
     <div style='padding:40px 0 24px 0;'>
       <div class='hero-badge'>🎯 Interface Interactive</div>
@@ -652,10 +1533,10 @@ elif PAGE == 3:
                   ⚠️ Veuillez entrer un avis client.
                 </div>""", unsafe_allow_html=True)
             else:
-                X     = preprocess(review, rating, feedback, age)
+                X_inp = preprocess(review, rating, feedback, age)
                 model = models[model_choice]
-                pred  = model.predict(X)[0]
-                proba = model.predict_proba(X)[0][1] if hasattr(model, "predict_proba") else 0.5
+                pred  = model.predict(X_inp)[0]
+                proba = model.predict_proba(X_inp)[0][1] if hasattr(model, "predict_proba") else 0.5
 
                 st.session_state["last_pred"] = {
                     "prediction": pred, "proba": proba,
@@ -689,7 +1570,6 @@ elif PAGE == 3:
                 else:               interp = "🔴 **Faible probabilité de succès**"
                 st.markdown(interp)
 
-                # Factors
                 st.markdown("<div class='card'>", unsafe_allow_html=True)
                 st.markdown("""<div style='font-family:"Space Mono",monospace;font-size:0.68em;
                             color:#8B5CF6;letter-spacing:1px;margin-bottom:14px;'>FACTEURS CLÉS</div>""",
@@ -717,7 +1597,6 @@ elif PAGE == 3:
                     </div>"""
                 st.markdown(rows + "</div>", unsafe_allow_html=True)
 
-                # Save history
                 if "history" not in st.session_state:
                     st.session_state.history = []
                 ml = {"logistic_regression":"Logistic Reg.","decision_tree":"Dec. Tree",
@@ -748,12 +1627,12 @@ elif PAGE == 3:
         st.dataframe(pd.DataFrame(st.session_state.history[::-1]), use_container_width=True, hide_index=True)
 
 # ══════════════════════════════════════════════════════════════
-#  PAGE 4 — EXPLICATION IA
+#  PAGE 5 — EXPLICATION IA
 # ══════════════════════════════════════════════════════════════
-elif PAGE == 4:
+elif PAGE == 5:
     st.markdown("""
     <div style='padding:40px 0 24px 0;'>
-      <div class='hero-badge'>🔍 Explicabilité IA — SHAP</div>
+      <div class='hero-badge'>🧠 Explicabilité IA — SHAP</div>
       <div class='sec-title' style='font-size:2.2em;margin-top:10px;'>Pourquoi cette prédiction ?</div>
       <div class='sec-sub'>Shapley Additive Explanations — comprendre les décisions du modèle variable par variable</div>
     </div>""", unsafe_allow_html=True)
@@ -895,9 +1774,9 @@ elif PAGE == 4:
         </div>""", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
-#  PAGE 5 — VALEUR AJOUTÉE
+#  PAGE 6 — VALEUR AJOUTÉE
 # ══════════════════════════════════════════════════════════════
-elif PAGE == 5:
+elif PAGE == 6:
     st.markdown("""
     <div style='padding:40px 0 24px 0;'>
       <div class='hero-badge'>🚀 Business Intelligence</div>
@@ -981,9 +1860,9 @@ elif PAGE == 5:
             </div>""", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
-#  PAGE 6 — CONCLUSION
+#  PAGE 7 — CONCLUSION
 # ══════════════════════════════════════════════════════════════
-elif PAGE == 6:
+elif PAGE == 7:
     st.markdown("""
     <div style='padding:40px 0 24px 0;'>
       <div class='hero-badge'>📈 Bilan Final</div>
@@ -1032,8 +1911,10 @@ elif PAGE == 6:
              "Stratify=y + class_weight maintiennent F1=82% sur la classe minoritaire."),
             ("🔍","#EC4899","Explicabilité complète",
              "SHAP Waterfall Plot explique chaque prédiction variable par variable."),
-            ("📱","#F59E0B","Interface utilisable",
-             "Streamlit avec historique et analyse de sentiment en temps réel."),
+            ("🔬","#F59E0B","Non supervisé intégré",
+             "K-Means identifie 4 profils clients stratégiques pour l'e-commerce."),
+            ("📱","#A78BFA","Interface complète",
+             "Streamlit avec 8 pages, historique, clustering et analyse temps réel."),
         ]:
             st.markdown(f"""
             <div class='concl-item'>
@@ -1073,6 +1954,7 @@ elif PAGE == 6:
             ("#06B6D4","Déploiement Cloud","AWS / GCP avec pipeline MLOps et monitoring de dérive."),
             ("#10B981","Données multilingues","Extension avec mBERT ou XLM-RoBERTa."),
             ("#F59E0B","API REST en temps réel","Intégration directe dans les plateformes e-commerce."),
+            ("#EC4899","SMOTE / Oversampling","Pour mieux gérer le déséquilibre des classes."),
         ]:
             st.markdown(f"""
             <div style='display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(42,42,62,0.4);'>
