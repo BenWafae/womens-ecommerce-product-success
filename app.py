@@ -182,14 +182,14 @@ models, vectorizer, models_ok = load_assets()
 #  PAGES DEFINITION
 # ═══════════════════════════════════════════════
 PAGES = [
-    ("🏠", "Accueil"),
-    ("📊", "Exploration des Données"),
-    ("🤖", "Modélisation ML"),
-    ("🔬", "Non Supervisé"),
-    ("🎯", "Prédiction"),
-    ("🧠", "Explication IA"),
-    ("🚀", "Valeur Ajoutée"),
-    ("📈", "Conclusion"),
+    ("01", "Accueil"),
+    ("02", "Exploration des Données"),
+    ("03", "Modélisation ML"),
+    ("04", "Non Supervisé"),
+    ("05", "Prédiction"),
+    ("06", "Explication IA"),
+    ("07", "Valeur Ajoutée"),
+    ("08", "Conclusion"),
 ]
 
 # ═══════════════════════════════════════════════
@@ -503,10 +503,10 @@ elif PAGE == 2:
 
     # ── ONGLETS ──────────────────────────────────────────────
     tab1, tab2, tab3, tab4 = st.tabs([
-        "📋 Résultats de Base",
-        "🔄 Cross-Validation",
-        "⚙️ Optimisation GridSearch",
-        "📊 Comparaison Finale",
+        "Résultats de Base",
+        "Cross-Validation",
+        "Optimisation GridSearch",
+        "Comparaison Finale",
     ])
 
     # ── TAB 1 : Résultats de base ────────────────────────────
@@ -895,7 +895,7 @@ elif PAGE == 3:
     </div>""", unsafe_allow_html=True)
 
     tab_pca, tab_km, tab_db, tab_hc, tab_bilan = st.tabs([
-        "📐 PCA", "🎯 K-Means", "🔍 DBSCAN", "🌳 Hiérarchique", "📊 Bilan Clusters"
+        "PCA", "K-Means", "DBSCAN", "Hiérarchique", "Bilan Clusters"
     ])
 
     # ── PCA ─────────────────────────────────────────────────
@@ -1601,12 +1601,77 @@ elif PAGE == 4:
                     st.session_state.history = []
                 ml = {"logistic_regression":"Logistic Reg.","decision_tree":"Dec. Tree",
                       "random_forest":"Random Forest"}[model_choice]
+                # Identifiant unique de cette prédiction pour le feedback
+                pred_id = f"pred_{len(st.session_state.history)}"
                 st.session_state.history.append({
                     "Modèle": ml, "Rating": rating, "Feedbacks": feedback,
                     "Résultat": "✅ Populaire" if pred == 1 else "❌ Faible",
                     "Probabilité": f"{int(proba*100)}%",
                     "Avis": review[:35] + "..." if len(review) > 35 else review,
+                    "Feedback": "—",
                 })
+                # Stocker l'id pour le widget feedback
+                st.session_state["current_pred_id"] = len(st.session_state.history) - 1
+
+                # ── Bloc feedback utilisateur ─────────────────
+                st.markdown("""
+                <div style='background:linear-gradient(135deg,rgba(139,92,246,0.07),rgba(6,182,212,0.04));
+                            border:1px solid rgba(139,92,246,0.25);border-radius:14px;
+                            padding:20px 22px;margin-top:16px;'>
+                  <div style='font-family:"Space Mono",monospace;font-size:0.65em;color:#8B5CF6;
+                              letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;'>
+                    Retour utilisateur
+                  </div>
+                  <div style='font-size:0.9em;color:#E8E8F0;font-weight:600;margin-bottom:14px;'>
+                    Cette prédiction était-elle correcte ?
+                  </div>
+                </div>""", unsafe_allow_html=True)
+
+                fb_col1, fb_col2, fb_col3 = st.columns([1, 1, 2])
+                with fb_col1:
+                    if st.button("👍  Oui, correcte", key=f"fb_yes_{pred_id}", use_container_width=True):
+                        idx = st.session_state["current_pred_id"]
+                        st.session_state.history[idx]["Feedback"] = "👍 Correcte"
+                        st.session_state["feedback_given"] = "yes"
+                        st.rerun()
+                with fb_col2:
+                    if st.button("👎  Non, incorrecte", key=f"fb_no_{pred_id}", use_container_width=True):
+                        idx = st.session_state["current_pred_id"]
+                        st.session_state.history[idx]["Feedback"] = "👎 Incorrecte"
+                        st.session_state["feedback_given"] = "no"
+                        st.rerun()
+
+                # Afficher la réponse si feedback déjà donné
+                if st.session_state.get("feedback_given") == "yes":
+                    st.markdown("""
+                    <div style='background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);
+                                border-radius:10px;padding:12px 16px;margin-top:8px;
+                                display:flex;align-items:center;gap:10px;'>
+                      <div style='font-size:1.4em;'>✅</div>
+                      <div>
+                        <div style='color:#10B981;font-weight:600;font-size:0.88em;'>Merci pour votre retour !</div>
+                        <div style='color:#6B7280;font-size:0.78em;margin-top:2px;'>
+                          Ce retour positif est enregistré dans l'historique.
+                          Il permettrait d'affiner le modèle lors d'un futur ré-entraînement.
+                        </div>
+                      </div>
+                    </div>""", unsafe_allow_html=True)
+                    st.session_state.pop("feedback_given", None)
+                elif st.session_state.get("feedback_given") == "no":
+                    st.markdown("""
+                    <div style='background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);
+                                border-radius:10px;padding:12px 16px;margin-top:8px;
+                                display:flex;align-items:center;gap:10px;'>
+                      <div style='font-size:1.4em;'>📝</div>
+                      <div>
+                        <div style='color:#EF4444;font-weight:600;font-size:0.88em;'>Retour négatif enregistré</div>
+                        <div style='color:#6B7280;font-size:0.78em;margin-top:2px;'>
+                          Merci ! Cette erreur de prédiction est notée dans l'historique.
+                          Accumuler ces retours permet d'identifier les cas limites du modèle.
+                        </div>
+                      </div>
+                    </div>""", unsafe_allow_html=True)
+                    st.session_state.pop("feedback_given", None)
         else:
             st.markdown("""
             <div style='background:#12121A;border:1px dashed #2A2A3E;border-radius:16px;
@@ -1620,9 +1685,10 @@ elif PAGE == 4:
     if "history" in st.session_state and st.session_state.history:
         st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
         ch, cb2 = st.columns([5, 1])
-        ch.markdown("<div class='sec-title' style='font-size:1.3em;'>📜 Historique</div>", unsafe_allow_html=True)
-        if cb2.button("🗑️ Effacer", use_container_width=True):
+        ch.markdown("<div class='sec-title' style='font-size:1.3em;'>Historique des prédictions</div>", unsafe_allow_html=True)
+        if cb2.button("Effacer", use_container_width=True):
             st.session_state.history = []
+            st.session_state.pop("feedback_given", None)
             st.rerun()
         st.dataframe(pd.DataFrame(st.session_state.history[::-1]), use_container_width=True, hide_index=True)
 
@@ -1843,13 +1909,55 @@ elif PAGE == 5:
 
     if not has_pred:
         st.markdown("""
-        <div style='background:rgba(139,92,246,0.07);border:1px dashed rgba(139,92,246,0.3);
-                    border-radius:12px;padding:18px 24px;margin-bottom:20px;
-                    display:flex;align-items:center;gap:14px;'>
-          <div style='font-size:1.8em;'>💡</div>
-          <div style='color:#A78BFA;font-size:0.9em;line-height:1.6;'>
-            Aucune prédiction en mémoire. L'exemple ci-dessous est un cas <strong>non recommandé</strong> (Rating=2).
-            Allez dans <strong>🎯 Prédiction</strong> pour voir votre propre explication personnalisée.
+        <div style='background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(6,182,212,0.05));
+                    border:1px solid rgba(139,92,246,0.3);border-radius:16px;
+                    padding:22px 28px;margin-bottom:24px;'>
+          <div style='font-family:"Space Mono",monospace;font-size:0.65em;color:#8B5CF6;
+                      letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;'>
+            📖 GUIDE DE LECTURE — COMMENT INTERPRÉTER CE GRAPHIQUE
+          </div>
+          <div style='display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;'>
+            <div style='background:rgba(0,0,0,0.2);border-radius:10px;padding:14px;
+                        border-left:3px solid #6366F1;'>
+              <div style='font-size:0.9em;font-weight:700;color:#A5B4FC;margin-bottom:5px;'>
+                📊 Valeur de Base (82.6%)
+              </div>
+              <div style='font-size:0.8em;color:#6B7280;line-height:1.6;'>
+                Point de départ du modèle = proportion de produits recommandés dans le dataset.
+                Sans aucune information sur le produit, le modèle prédit 82.6% de chances d'être recommandé.
+              </div>
+            </div>
+            <div style='background:rgba(0,0,0,0.2);border-radius:10px;padding:14px;
+                        border-left:3px solid #10B981;'>
+              <div style='font-size:0.9em;font-weight:700;color:#6EE7B7;margin-bottom:5px;'>
+                ▲ Barres vertes = impact positif
+              </div>
+              <div style='font-size:0.8em;color:#6B7280;line-height:1.6;'>
+                Ces variables <strong style='color:#6EE7B7;'>augmentent</strong> la probabilité de recommandation.
+                Ex : un Rating élevé (4 ou 5) ou un avis très positif poussent le modèle vers "Recommandé".
+              </div>
+            </div>
+            <div style='background:rgba(0,0,0,0.2);border-radius:10px;padding:14px;
+                        border-left:3px solid #EF4444;'>
+              <div style='font-size:0.9em;font-weight:700;color:#FCA5A5;margin-bottom:5px;'>
+                ▼ Barres rouges = impact négatif
+              </div>
+              <div style='font-size:0.8em;color:#6B7280;line-height:1.6;'>
+                Ces variables <strong style='color:#FCA5A5;'>diminuent</strong> la probabilité de recommandation.
+                Ex : un Rating faible (1 ou 2) ou un sentiment négatif font chuter la prédiction.
+              </div>
+            </div>
+          </div>
+          <div style='background:rgba(0,0,0,0.15);border-radius:10px;padding:12px 16px;
+                      display:flex;align-items:center;gap:12px;'>
+            <div style='font-size:1.4em;flex-shrink:0;'>🔢</div>
+            <div style='font-size:0.82em;color:#9CA3AF;line-height:1.6;'>
+              <strong style='color:#E8E8F0;'>Comment lire la formule :</strong>
+              Base (82.6%) + contributions de chaque variable = Prédiction finale.
+              Dans cet exemple de démonstration (Rating=2, avis court et négatif), toutes les variables
+              tirent vers le bas → prédiction finale de 25% seulement.
+              <span style='color:#A78BFA;'> Allez dans 🎯 Prédiction pour tester avec vos propres données.</span>
+            </div>
           </div>
         </div>""", unsafe_allow_html=True)
 
@@ -2002,10 +2110,53 @@ elif PAGE == 5:
 
     # ── Section 3 : Beeswarm simulé ──────────────────────────
     st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
+
+    # Titre + explication pédagogique AVANT le graphique
     st.markdown("""
-    <div style='margin-bottom:16px;'>
-      <div class='sec-title' style='font-size:1.4em;'>Distribution de l'impact — Beeswarm Plot</div>
-      <div class='sec-sub'>Chaque point = un avis client. Rouge = valeur élevée, Bleu = valeur faible</div>
+    <div style='margin-bottom:20px;'>
+      <div class='sec-title' style='font-size:1.4em;'>Vue globale — Beeswarm Plot SHAP</div>
+      <div class='sec-sub'>Comment chaque variable influence les prédictions sur l'ensemble des 500 avis analysés</div>
+    </div>
+
+    <div style='display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;'>
+      <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:12px;padding:18px;
+                  border-top:3px solid #8B5CF6;'>
+        <div style='font-weight:700;color:#E8E8F0;font-size:0.9em;margin-bottom:8px;'>
+          🎯 À quoi sert ce graphique ?
+        </div>
+        <div style='font-size:0.82em;color:#6B7280;line-height:1.7;'>
+          Contrairement au graphique précédent qui explique <em>une seule prédiction</em>,
+          le Beeswarm Plot montre l'impact de chaque variable sur
+          <strong style='color:#E8E8F0;'>l'ensemble des prédictions</strong>.
+          Chaque point représente un avis client. On voit ainsi si une variable
+          influence de manière cohérente ou aléatoire les décisions du modèle.
+        </div>
+      </div>
+      <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:12px;padding:18px;
+                  border-top:3px solid #06B6D4;'>
+        <div style='font-weight:700;color:#E8E8F0;font-size:0.9em;margin-bottom:8px;'>
+          🎨 Comment lire les couleurs et positions ?
+        </div>
+        <div style='font-size:0.82em;color:#6B7280;line-height:1.7;'>
+          <span style='color:#EF4444;font-weight:600;'>Points rouges</span> = la feature a une valeur élevée (ex : Rating = 5)<br>
+          <span style='color:#06B6D4;font-weight:600;'>Points bleus</span> = la feature a une valeur faible (ex : Rating = 1)<br>
+          <span style='color:#10B981;font-weight:600;'>Position à droite</span> = impact positif → pousse vers "Recommandé"<br>
+          <span style='color:#EF4444;font-weight:600;'>Position à gauche</span> = impact négatif → pousse vers "Non Recommandé"
+        </div>
+      </div>
+    </div>
+
+    <div style='background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);
+                border-radius:10px;padding:14px 18px;margin-bottom:16px;
+                display:flex;align-items:center;gap:12px;'>
+      <div style='font-size:1.3em;flex-shrink:0;'>💡</div>
+      <div style='font-size:0.83em;color:#9CA3AF;line-height:1.6;'>
+        <strong style='color:#E8E8F0;'>Exemple de lecture sur le graphique :</strong>
+        Pour le <strong style='color:#8B5CF6;'>Rating</strong> (1ère ligne),
+        les points rouges (Rating élevé) sont tous à droite → un Rating élevé prédit "Recommandé".
+        Les points bleus (Rating faible) sont à gauche → un Rating faible prédit "Non Recommandé".
+        C'est la confirmation visuelle que le Rating est la variable la plus décisive du modèle.
+      </div>
     </div>""", unsafe_allow_html=True)
 
     np.random.seed(42)
@@ -2044,7 +2195,7 @@ elif PAGE == 5:
         xaxis=dict(
             gridcolor="#1E1E2E", zeroline=False,
             tickfont=dict(color="#6B7280", size=10),
-            title=dict(text="Valeur SHAP  (← négatif / positif →)", font=dict(color="#6B7280", size=10)),
+            title=dict(text="Valeur SHAP  (← impact négatif  |  impact positif →)", font=dict(color="#6B7280", size=10)),
         ),
         yaxis=dict(
             tickvals=list(range(len(bee_feats))),
@@ -2055,17 +2206,41 @@ elif PAGE == 5:
     )
     st.plotly_chart(fig_bee, use_container_width=True)
 
-    # Légende beeswarm
+    # Légende enrichie sous le beeswarm
     st.markdown("""
-    <div style='display:flex;gap:24px;justify-content:center;margin-top:-8px;'>
-      <div style='display:flex;align-items:center;gap:8px;font-size:0.8em;color:#9CA3AF;'>
-        <div style='width:40px;height:8px;border-radius:4px;
+    <div style='display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:-4px;'>
+      <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:8px;padding:12px;
+                  display:flex;align-items:center;gap:8px;'>
+        <div style='width:36px;height:8px;border-radius:4px;flex-shrink:0;
                     background:linear-gradient(90deg,#06B6D4,#374151,#EF4444);'></div>
-        Valeur faible → valeur élevée de la feature
+        <div style='font-size:0.75em;color:#6B7280;'>Bleu = valeur basse → Rouge = valeur haute</div>
       </div>
-      <div style='display:flex;align-items:center;gap:8px;font-size:0.8em;color:#9CA3AF;'>
-        <div style='width:1px;height:16px;background:rgba(255,255,255,0.2);'></div>
-        Ligne 0 = impact neutre
+      <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:8px;padding:12px;
+                  display:flex;align-items:center;gap:8px;'>
+        <div style='width:1px;height:24px;background:rgba(255,255,255,0.25);flex-shrink:0;'></div>
+        <div style='font-size:0.75em;color:#6B7280;'>Ligne verticale = impact nul (SHAP = 0)</div>
+      </div>
+      <div style='background:#12121A;border:1px solid rgba(16,185,129,0.3);border-radius:8px;
+                  padding:12px;display:flex;align-items:center;gap:8px;'>
+        <div style='font-size:1em;'>→</div>
+        <div style='font-size:0.75em;color:#10B981;'>À droite = pousse vers "Recommandé"</div>
+      </div>
+      <div style='background:#12121A;border:1px solid rgba(239,68,68,0.3);border-radius:8px;
+                  padding:12px;display:flex;align-items:center;gap:8px;'>
+        <div style='font-size:1em;'>←</div>
+        <div style='font-size:0.75em;color:#EF4444;'>À gauche = pousse vers "Non Recommandé"</div>
+      </div>
+    </div>
+
+    <div style='background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);
+                border-radius:10px;padding:14px 18px;margin-top:14px;'>
+      <div style='font-size:0.82em;color:#9CA3AF;line-height:1.6;'>
+        <strong style='color:#6EE7B7;'>✅ Conclusion SHAP :</strong>
+        Le <strong style='color:#E8E8F0;'>Rating</strong> domine massivement avec un score SHAP de 0.1907
+        — soit <strong style='color:#8B5CF6;'>6× plus important</strong> que la 2ème variable (Polarity = 0.0312).
+        Les features NLP créées lors du Feature Engineering (<em>Polarity, Subjectivity</em>) sont en 2ème et 3ème position,
+        ce qui confirme la valeur ajoutée de l'analyse de sentiment des avis textuels.
+        Les variables catégorielles (Division, Department, Class) ont un impact quasi nul.
       </div>
     </div>""", unsafe_allow_html=True)
 
