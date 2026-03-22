@@ -1790,13 +1790,109 @@ elif PAGE == 4:
 
     if "history" in st.session_state and st.session_state.history:
         st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
+
+        hist = st.session_state.history
+        total      = len(hist)
+        n_rec      = sum(1 for h in hist if h["Résultat"] == "Recommandé")
+        n_non      = total - n_rec
+        n_correct  = sum(1 for h in hist if h.get("Feedback") == "Correcte")
+        n_incorr   = sum(1 for h in hist if h.get("Feedback") == "Incorrecte")
+        n_feedback = n_correct + n_incorr
+        accuracy_u = round(n_correct / n_feedback * 100) if n_feedback > 0 else None
+
+        # ── Titre + bouton ────────────────────────────────────
         ch, cb2 = st.columns([5, 1])
-        ch.markdown("<div class='sec-title' style='font-size:1.3em;'>Historique des prédictions</div>", unsafe_allow_html=True)
+        ch.markdown("<div class='sec-title' style='font-size:1.3em;'>Historique des prédictions</div>",
+                    unsafe_allow_html=True)
         if cb2.button("Effacer", use_container_width=True):
             st.session_state.history = []
             st.session_state.pop("feedback_given", None)
             st.rerun()
-        st.dataframe(pd.DataFrame(st.session_state.history[::-1]), use_container_width=True, hide_index=True)
+
+        # ── Dashboard statistiques en temps réel ─────────────
+        sc1, sc2, sc3, sc4, sc5 = st.columns(5)
+        for col, (val, lbl, clr, sub) in zip(
+            [sc1, sc2, sc3, sc4, sc5],
+            [
+                (str(total),    "Prédictions",       "#8B5CF6", "total effectuées"),
+                (str(n_rec),    "Recommandés",        "#10B981", f"{round(n_rec/total*100) if total else 0}% du total"),
+                (str(n_non),    "Non recommandés",    "#EF4444", f"{round(n_non/total*100) if total else 0}% du total"),
+                (str(n_feedback), "Feedbacks donnés", "#F59E0B", f"{total - n_feedback} sans retour"),
+                (
+                    f"{accuracy_u}%" if accuracy_u is not None else "—",
+                    "Taux de justesse",
+                    "#06B6D4" if accuracy_u and accuracy_u >= 70 else "#F97316",
+                    "selon vos retours" if accuracy_u is not None else "aucun feedback encore",
+                ),
+            ]
+        ):
+            with col:
+                st.markdown(f"""
+                <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:12px;
+                            padding:14px 12px;text-align:center;border-top:2px solid {clr};'>
+                  <div style='font-family:"Space Mono",monospace;font-size:1.6em;
+                              font-weight:700;color:{clr};'>{val}</div>
+                  <div style='color:#E8E8F0;font-size:0.8em;font-weight:600;margin-top:4px;'>{lbl}</div>
+                  <div style='color:#4B5563;font-size:0.7em;margin-top:3px;'>{sub}</div>
+                </div>""", unsafe_allow_html=True)
+
+        # ── Barre de progression feedback ─────────────────────
+        if n_feedback > 0:
+            pct_ok  = round(n_correct  / n_feedback * 100)
+            pct_err = round(n_incorr / n_feedback * 100)
+            st.markdown(f"""
+            <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:12px;
+                        padding:16px 20px;margin:12px 0;'>
+              <div style='font-family:"Space Mono",monospace;font-size:0.63em;color:#6B7280;
+                          letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;'>
+                Analyse des retours utilisateur
+              </div>
+              <div style='display:flex;justify-content:space-between;
+                          font-size:0.8em;margin-bottom:6px;'>
+                <span style='color:#10B981;font-weight:600;'>
+                  Correctes : {n_correct} ({pct_ok}%)
+                </span>
+                <span style='color:#EF4444;font-weight:600;'>
+                  Incorrectes : {n_incorr} ({pct_err}%)
+                </span>
+              </div>
+              <div style='background:#0A0A0F;border-radius:6px;height:10px;overflow:hidden;'>
+                <div style='width:{pct_ok}%;height:100%;
+                            background:linear-gradient(90deg,#10B981,#34D399);
+                            border-radius:6px;float:left;'></div>
+                <div style='width:{pct_err}%;height:100%;
+                            background:linear-gradient(90deg,#EF4444,#F97316);
+                            border-radius:6px;float:left;'></div>
+              </div>
+              <div style='font-size:0.75em;color:#4B5563;margin-top:8px;'>
+                {n_feedback}/{total} prédictions évaluées par l'utilisateur —
+                {total - n_feedback} en attente de retour.
+                {"Le modèle performe bien selon vos retours." if accuracy_u and accuracy_u >= 80
+                  else "Des retours supplémentaires permettraient d'affiner l'évaluation." if n_feedback < 3
+                  else "Des améliorations pourraient être envisagées (SMOTE, BERT, nouveaux features)."}
+              </div>
+            </div>""", unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div style='background:#12121A;border:1px dashed #2A2A3E;border-radius:12px;
+                        padding:14px 18px;margin:12px 0;
+                        display:flex;align-items:center;gap:10px;'>
+              <div style='font-size:1.2em;opacity:0.4;'>↑</div>
+              <div style='font-size:0.8em;color:#374151;'>
+                Donnez un retour 👍 / 👎 sur vos prédictions ci-dessus pour voir les statistiques s'afficher ici.
+              </div>
+            </div>""", unsafe_allow_html=True)
+
+        # ── Tableau historique ────────────────────────────────
+        st.markdown("""
+        <div style='font-family:"Space Mono",monospace;font-size:0.63em;color:#6B7280;
+                    letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;margin-top:4px;'>
+          Détail des prédictions
+        </div>""", unsafe_allow_html=True)
+        st.dataframe(
+            pd.DataFrame(hist[::-1]),
+            use_container_width=True, hide_index=True
+        )
 
 
 # ══════════════════════════════════════════════════════════════
