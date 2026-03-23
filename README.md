@@ -4,6 +4,7 @@
 <img src="https://img.shields.io/badge/Scikit--Learn-ML-534AB7?style=for-the-badge&logo=scikit-learn&logoColor=white"/>
 <img src="https://img.shields.io/badge/NLP-TextBlob-1B7F3E?style=for-the-badge"/>
 <img src="https://img.shields.io/badge/SHAP-Explicabilité_IA-A0522D?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/Streamlit-Application-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white"/>
 <img src="https://img.shields.io/badge/VS_Code-Notebook-0078D4?style=for-the-badge&logo=visual-studio-code&logoColor=white"/>
 <img src="https://img.shields.io/badge/Status-Complet-success?style=for-the-badge"/>
 <img src="https://img.shields.io/badge/Dataset-Kaggle-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white"/>
@@ -27,7 +28,8 @@ Le projet permet de :
 
 - Analyser les caractéristiques des produits et des avis clients
 - Construire un modèle de **classification binaire** : produit recommandé `1` ou non recommandé `0`
-- Mettre en place une application interactive pour tester les prédictions
+- Appliquer des méthodes de **clustering non supervisé** pour segmenter les clientes
+- Mettre en place une **application Streamlit interactive** pour tester les prédictions en temps réel
 
 ### Pourquoi ce problème ?
 
@@ -61,12 +63,19 @@ Prédire si un produit vestimentaire sera **recommandé ou non** par les cliente
 
 ```
 ecommerce-prediction/
+├── app/
+│   └── (ressources de l'application Streamlit)
 ├── data/
 │   └── Womens Clothing E-Commerce Reviews.csv
+├── model/
+│   ├── models.pkl              ← 3 modèles optimisés (LR, DT, RF)
+│   ├── scaler.pkl              ← StandardScaler fitté sur les données
+│   ├── feature_columns.pkl     ← Liste des 36 colonnes dans le bon ordre
+│   └── scaled_columns.pkl      ← Colonnes numériques à normaliser
 ├── notebooks/
-│   └── ecommerce_project.ipynb
-├── models/
-│   └── (modèles sauvegardés via joblib)
+│   ├── ecommerce_project.ipynb ← Notebook supervisé (EDA + ML + SHAP)
+│   └── nonSupervise.ipynb      ← Notebook non supervisé (K-Means, DBSCAN, HC)
+├── app.py                      ← Application Streamlit interactive
 └── README.md
 ```
 
@@ -87,10 +96,10 @@ ecommerce-prediction/
 ### Installation des dépendances
 
 ```bash
-pip install pandas numpy matplotlib seaborn scikit-learn textblob wordcloud shap lime joblib
+pip install pandas numpy matplotlib seaborn scikit-learn textblob wordcloud shap lime joblib streamlit plotly
 ```
 
-### Lancer le notebook
+### Lancer le notebook supervisé
 
 1. Forker le dépôt depuis GitHub
 2. Cloner votre fork en local :
@@ -100,6 +109,13 @@ cd ecommerce-prediction
 ```
 3. Ouvrir `notebooks/ecommerce_project.ipynb` dans VS Code
 4. Exécuter chaque cellule avec **Run** (▶) ou `Shift + Enter`
+
+### Lancer le notebook non supervisé
+
+```bash
+# Ouvrir dans VS Code
+notebooks/nonSupervise.ipynb
+```
 
 ---
 
@@ -121,6 +137,10 @@ Modélisation            — Logistic Regression · Decision Tree · Random Fore
 Optimisation            — GridSearchCV · RandomizedSearchCV
     ↓
 Explicabilité           — SHAP (importance globale + prédiction individuelle)
+    ↓
+Non Supervisé           — K-Means · DBSCAN · Clustering Hiérarchique · PCA
+    ↓
+Application Streamlit   — Interface interactive de prédiction en temps réel
 ```
 
 ---
@@ -193,14 +213,135 @@ Explicabilité           — SHAP (importance globale + prédiction individuelle
 
 ---
 
+##  Apprentissage Non Supervisé
+
+> En complément du modèle supervisé, nous avons appliqué des techniques de **clustering non supervisé** pour explorer les comportements cachés des clientes — sans variable cible.
+
+### Variables utilisées
+
+```python
+X = df[['Age', 'Rating', 'Positive Feedback Count']]
+```
+
+Après normalisation avec `StandardScaler` et réduction de dimension avec `PCA (2 composantes)`.
+
+### K-Means — Segmentation en 4 clusters
+
+Le nombre optimal de clusters (K=4) a été déterminé par la **méthode du coude**.
+
+| Cluster | Taille | Âge moyen | Rating moyen | Feedback moyen | Profil |
+|---|---|---|---|---|---|
+| **Cluster 0** | 8 350 | ~35 ans | ⭐ 4.72 | ~0.5 | 🔵 Satisfaites passives |
+| **Cluster 1** | 2 918 | ~43 ans | ⭐ 4.32 | ~4.7 | 🟢 Engagées actives (ambassadrices) |
+| **Cluster 2** | 5 399 | ~57 ans | ⭐ 4.63 | ~0.7 | 🟡 Âgées satisfaites |
+| **Cluster 3** | 3 732 | ~40 ans | ⭐ 2.32 | ~0.9 | 🔴 Insatisfaites (à surveiller) |
+
+```python
+kmeans = KMeans(n_clusters=4, random_state=42)
+labels_kmeans = kmeans.fit_predict(X_scaled)
+```
+
+### DBSCAN — Détection d'anomalies
+
+```python
+dbscan = DBSCAN(eps=0.5, min_samples=5)
+labels_dbscan = dbscan.fit_predict(X_scaled)
+```
+
+> Identifie automatiquement les **outliers** (label `-1`) : avis incohérents, ratings atypiques.
+
+### Clustering Hiérarchique
+
+```python
+hc = AgglomerativeClustering(n_clusters=3)
+labels_hc = hc.fit_predict(X_scaled)
+```
+
+> Construit une hiérarchie de groupes — utile pour visualiser les relations entre clusters.
+
+### Insights business tirés du clustering
+
+| Action | Cluster ciblé | Objectif |
+|---|---|---|
+| Programme fidélité / VIP | Cluster 1 (Engagées) | Valoriser les ambassadrices |
+| Amélioration produit | Cluster 3 (Insatisfaites) | Réduire le churn |
+| Encourager les avis | Cluster 0 & 2 (Passives) | Augmenter l'engagement |
+
+---
+
+##  Application Streamlit — ShopSense AI
+
+> L'application interactive **ShopSense AI** constitue l'aboutissement du projet. Elle permet de tester les prédictions en temps réel, d'explorer les résultats ML et de visualiser les explications SHAP — le tout dans une interface moderne en 8 pages.
+
+### Lancer l'application
+
+```bash
+streamlit run app.py
+```
+
+### Pages disponibles
+
+| Page | Contenu |
+|---|---|
+| **01 · Accueil** | Présentation du projet, technologies, dataset |
+| **02 · Exploration des Données** | Distributions, corrélations, visualisations EDA |
+| **03 · Modélisation ML** | Résultats, cross-validation, optimisation, feature importances |
+| **04 · Non Supervisé** | PCA, K-Means, DBSCAN, Clustering Hiérarchique, profils clients |
+| **05 · Prédiction** | Interface de prédiction interactive en temps réel |
+| **06 · Explication IA** | SHAP global + Waterfall Plot individuel + Beeswarm Plot |
+| **07 · Valeur Ajoutée** | Insights business et recommandations stratégiques |
+| **08 · Conclusion** | Bilan, limites et perspectives |
+
+### Pipeline de prédiction réelle
+
+Quand l'utilisateur soumet un avis, l'application exécute exactement le même pipeline que le notebook :
+
+```
+Texte saisi
+    ↓
+TextBlob → polarity + subjectivity
+    ↓
+Reconstruction des 36 colonnes (One-Hot Encoding inclus)
+    ↓
+StandardScaler (vrai scaler fitté sur les données)
+    ↓
+Modèle ML (Random Forest / Decision Tree / Logistic Regression)
+    ↓
+predict() + predict_proba() → résultat + probabilité
+```
+
+### Fichiers pkl nécessaires
+
+| Fichier | Contenu |
+|---|---|
+| `model/models.pkl` | 3 modèles optimisés sauvegardés |
+| `model/scaler.pkl` | StandardScaler fitté sur le dataset |
+| `model/feature_columns.pkl` | 36 colonnes dans le bon ordre |
+| `model/scaled_columns.pkl` | 6 colonnes numériques à normaliser |
+
+> ⚠️ Ces fichiers sont générés en exécutant le bloc de sauvegarde à la fin du notebook `ecommerce_project.ipynb`.
+
+### Exemples de prédiction testés
+
+| Rating | Avis | Feedback | Résultat | Probabilité |
+|---|---|---|---|---|
+| 3 | "i really found it so bad it was not comfortable at all" | 6 | ❌ Non Recommandé | 37% |
+| 4 | "i reelly love it it was impressive so goood so comfortable" | 39 | ✅ Recommandé | 100% |
+| 4 | "neutre" | 0 | ✅ Recommandé | 87% |
+
+> Le modèle reflète fidèlement les données réelles : 85.3% des produits avec Rating 4 sont recommandés dans le dataset.
+
+---
+
 ##  Limites & pistes d'amélioration
 
 | Limite identifiée | Piste d'amélioration |
 |---|---|
 | Déséquilibre des classes (82% / 18%) | Appliquer SMOTE ou `class_weight='balanced'` |
 | Analyse textuelle basique (TextBlob) | Utiliser un modèle BERT ou TF-IDF avancé |
-| Partie non supervisée absente | Ajouter un clustering k-means par segment client |
-| Pas d'interface utilisateur | Développer une mini-app Streamlit ou Gradio |
+| Texte en anglais seulement | Extension multilingue avec mBERT ou XLM-RoBERTa |
+| Données statiques | Pipeline MLOps avec re-entraînement automatique |
+| Déploiement local uniquement | Déploiement cloud AWS / GCP |
 
 ---
 
@@ -234,16 +375,20 @@ git merge origin/benzhirWafa
 |---|---|
 | `pandas` / `numpy` | Manipulation des données |
 | `matplotlib` / `seaborn` | Visualisation |
-| `scikit-learn` | Modélisation ML |
+| `scikit-learn` | Modélisation ML + clustering |
 | `textblob` | Analyse de sentiment NLP |
 | `wordcloud` | Visualisation textuelle |
 | `shap` | Explicabilité IA |
-| `joblib` | Sauvegarde des modèles |
+| `joblib` / `pickle` | Sauvegarde des modèles |
+| `streamlit` | Application interactive |
+| `plotly` | Visualisations interactives dans Streamlit |
 
 ---
 
 <div align="center">
 
 *Projet réalisé dans le cadre du cours Systèmes Intelligents — BSDSI 2025-2026*
+
+**BEN ZHIR Wafa · IKSOD Salma · Enc. AIT BAHA Tarek**
 
 </div>
