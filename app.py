@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 # ═══════════════════════════════════════════════
 st.set_page_config(
     page_title="ShopSense AI · E-Commerce Intelligence",
-    page_icon="🛍️",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -472,13 +472,13 @@ if PAGE == 0:
         st.markdown("<div class='sec-title'>À propos du projet</div>", unsafe_allow_html=True)
         st.markdown("<div class='sec-sub'>Women's Clothing E-Commerce Reviews Dataset — BSDSI 2025-2026</div>", unsafe_allow_html=True)
         for clr, icon, title, desc in [
-            ("#8B5CF6","🎯","Problématique",
+            ("#8B5CF6","","Problématique",
              "Prédire si un produit sera recommandé à partir des avis clients, notes et données démographiques."),
-            ("#EC4899","📊","Données analysées",
+            ("#EC4899","","Données analysées",
              "23 486 avis sur des vêtements féminins : âge, rating 1-5, texte, feedbacks, département, classe."),
-            ("#06B6D4","🤖","Approche ML",
+            ("#06B6D4","","Approche ML",
              "Classification binaire supervisée avec TF-IDF, polarité TextBlob, puis Random Forest optimisé."),
-            ("#10B981","✨","Valeur ajoutée",
+            ("#10B981","","Valeur ajoutée",
              "L'application explique chaque décision via SHAP, aidant les équipes produit à agir."),
         ]:
             st.markdown(f"""
@@ -1706,7 +1706,7 @@ elif PAGE == 3:
 elif PAGE == 4:
     st.markdown("""
     <div style='padding:40px 0 24px 0;'>
-      <div class='hero-badge'>🎯 Interface Interactive</div>
+      <div class='hero-badge'> Interface Interactive</div>
       <div class='sec-title' style='font-size:2.2em;margin-top:10px;'>Prédiction en Temps Réel</div>
       <div class='sec-sub'>Entrez les informations du produit pour prédire sa popularité</div>
     </div>""", unsafe_allow_html=True)
@@ -2098,7 +2098,7 @@ elif PAGE == 4:
 elif PAGE == 5:
     st.markdown("""
     <div style='padding:40px 0 24px 0;'>
-      <div class='hero-badge'>🧠 Explicabilité IA — SHAP</div>
+      <div class='hero-badge'> Explicabilité IA — SHAP</div>
       <div class='sec-title' style='font-size:2.2em;margin-top:10px;'>Pourquoi cette prédiction ?</div>
       <div class='sec-sub'>Shapley Additive Explanations — comprendre les décisions du modèle variable par variable</div>
     </div>""", unsafe_allow_html=True)
@@ -2114,6 +2114,46 @@ elif PAGE == 5:
         <div style='color:#6B7280;font-size:0.88em;line-height:1.7;max-width:700px;'>
           Chaque prédiction est décomposée variable par variable. SHAP répond à :
           <em style='color:#A78BFA;'>"Pourquoi le modèle a-t-il prédit CETTE valeur pour CET exemple ?"</em>
+        </div>
+      </div>
+    </div>""", unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style='display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;'>
+      <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:14px;
+                  padding:20px;border-top:3px solid #8B5CF6;'>
+        <div style='font-size:1.6em;margin-bottom:10px;'></div>
+        <div style='font-weight:700;color:#E8E8F0;font-size:0.9em;margin-bottom:8px;'>À quoi ça sert ?</div>
+        <div style='font-size:0.8em;color:#6B7280;line-height:1.7;'>
+          SHAP transforme le modèle "boîte noire" en quelque chose de
+          <strong style='color:#E8E8F0;'>compréhensible</strong>.
+          Il mesure l'impact exact de chaque variable sur une prédiction donnée.
+          Sans SHAP, on sait juste que le modèle prédit 87% — avec SHAP, on sait
+          <em>pourquoi</em> : parce que le Rating vaut 4, que l'avis est positif, etc.
+        </div>
+      </div>
+      <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:14px;
+                  padding:20px;border-top:3px solid #06B6D4;'>
+        <div style='font-size:1.6em;margin-bottom:10px;'>⚙️</div>
+        <div style='font-weight:700;color:#E8E8F0;font-size:0.9em;margin-bottom:8px;'>Comment ça marche ?</div>
+        <div style='font-size:0.8em;color:#6B7280;line-height:1.7;'>
+          SHAP est basé sur la <strong style='color:#E8E8F0;'>théorie des jeux de Shapley</strong>.
+          Il simule toutes les combinaisons possibles de variables pour calculer la contribution
+          marginale de chacune. Le résultat est un score signé :
+          <span style='color:#10B981;font-weight:600;'>+ positif</span> = pousse vers "Recommandé",
+          <span style='color:#EF4444;font-weight:600;'>− négatif</span> = pousse vers "Non recommandé".
+        </div>
+      </div>
+      <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:14px;
+                  padding:20px;border-top:3px solid #10B981;'>
+        <div style='font-size:1.6em;margin-bottom:10px;'></div>
+        <div style='font-weight:700;color:#E8E8F0;font-size:0.9em;margin-bottom:8px;'>Ce que ça révèle sur ce projet</div>
+        <div style='font-size:0.8em;color:#6B7280;line-height:1.7;'>
+          Sur notre dataset de 23 486 avis, SHAP confirme que le
+          <strong style='color:#E8E8F0;'>Rating est dominant à 0.1907</strong>
+          — 6 fois plus influent que la Polarity (0.0312).
+          Il valide aussi notre Feature Engineering : les features NLP créées
+          (polarity, subjectivity) apportent une vraie valeur au modèle.
         </div>
       </div>
     </div>""", unsafe_allow_html=True)
@@ -2176,7 +2216,7 @@ elif PAGE == 5:
             ("#8B5CF6","⬆️","Score positif (+)","La variable pousse vers 'Recommandé'."),
             ("#EF4444","⬇️","Score négatif (−)","La variable pousse vers 'Non recommandé'."),
             ("#06B6D4","📏","Magnitude","Plus la barre est longue, plus la variable influence."),
-            ("#F59E0B","🎯","Base = 82.6%","Point de départ avant ajustements SHAP."),
+            ("#F59E0B","","Base = 82.6%","Point de départ avant ajustements SHAP."),
         ]:
             st.markdown(f"""
             <div style='display:flex;gap:12px;padding:11px 0;border-bottom:1px solid rgba(42,42,62,0.35);'>
@@ -2268,7 +2308,7 @@ elif PAGE == 5:
     cw1, cw2 = st.columns([1.25, 0.75], gap="large")
     with cw1:
         running = base_val
-        bar_data = [("📊 Base (82.6%)", base_val, 0, base_val, "#6366F1", "Base a priori")]
+        bar_data = [(" Base (82.6%)", base_val, 0, base_val, "#6366F1", "Base a priori")]
         for name, contrib, hint in contribs:
             start = running
             running += contrib
@@ -2358,10 +2398,86 @@ elif PAGE == 5:
         </div>""", unsafe_allow_html=True)
 
     st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
+
     st.markdown("""
-    <div style='margin-bottom:20px;'>
+    <div style='margin-bottom:16px;'>
       <div class='sec-title' style='font-size:1.4em;'>Vue globale — Beeswarm Plot SHAP</div>
       <div class='sec-sub'>Comment chaque variable influence les prédictions sur l'ensemble des avis analysés</div>
+    </div>""", unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style='background:linear-gradient(135deg,rgba(139,92,246,0.06),rgba(6,182,212,0.03));
+                border:1px solid rgba(139,92,246,0.2);border-radius:16px;
+                padding:22px 28px;margin-bottom:20px;'>
+      <div style='font-family:"Space Mono",monospace;font-size:0.65em;color:#8B5CF6;
+                  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;'>
+        📖 GUIDE DE LECTURE — BEESWARM PLOT
+      </div>
+      <div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:18px;'>
+        <div style='background:rgba(0,0,0,0.25);border-radius:12px;padding:16px;border-left:3px solid #8B5CF6;'>
+          <div style='font-size:0.88em;font-weight:700;color:#A78BFA;margin-bottom:8px;'>
+            🔵 Chaque point = un avis client
+          </div>
+          <div style='font-size:0.79em;color:#6B7280;line-height:1.6;'>
+            Le graphique affiche <strong style='color:#E8E8F0;'>120 avis</strong> par variable.
+            Chaque point représente l'impact SHAP de cette variable sur la prédiction d'un avis précis.
+            Les points sont dispersés verticalement (jitter) pour éviter le chevauchement.
+          </div>
+        </div>
+        <div style='background:rgba(0,0,0,0.25);border-radius:12px;padding:16px;border-left:3px solid #06B6D4;'>
+          <div style='font-size:0.88em;font-weight:700;color:#67E8F9;margin-bottom:8px;'>
+             La couleur = la valeur de la variable
+          </div>
+          <div style='font-size:0.79em;color:#6B7280;line-height:1.6;'>
+            <span style='color:#EF4444;font-weight:600;'>Points rouges →</span>
+            valeur élevée (ex : Rating = 5, Polarity très positive)<br>
+            <span style='color:#06B6D4;font-weight:600;'>Points bleus →</span>
+            valeur faible (ex : Rating = 1, Polarity négative)<br>
+            <span style='color:#9CA3AF;font-weight:600;'>Points gris →</span>
+            valeur moyenne ou neutre
+          </div>
+        </div>
+        <div style='background:rgba(0,0,0,0.25);border-radius:12px;padding:16px;border-left:3px solid #10B981;'>
+          <div style='font-size:0.88em;font-weight:700;color:#6EE7B7;margin-bottom:8px;'>
+            ↔ La position horizontale = l'impact
+          </div>
+          <div style='font-size:0.79em;color:#6B7280;line-height:1.6;'>
+            <span style='color:#10B981;font-weight:600;'>Droite (positif) →</span>
+            la variable pousse vers "Recommandé"<br>
+            <span style='color:#EF4444;font-weight:600;'>Gauche (négatif) →</span>
+            la variable pousse vers "Non recommandé"<br>
+            La <strong style='color:#E8E8F0;'>ligne centrale (0)</strong> = aucun impact.
+          </div>
+        </div>
+      </div>
+      <div style='display:grid;grid-template-columns:1fr 1fr;gap:14px;'>
+        <div style='background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);
+                    border-radius:10px;padding:14px;'>
+          <div style='font-size:0.85em;font-weight:700;color:#A78BFA;margin-bottom:6px;'>
+             Ce que montre ce graphique sur nos données
+          </div>
+          <div style='font-size:0.78em;color:#6B7280;line-height:1.6;'>
+            Le <strong style='color:#E8E8F0;'>Rating</strong> est la seule variable avec une dispersion
+            large des deux côtés (−0.3 à +0.3) — ce qui confirme son rôle dominant.
+            Les points rouges (Rating élevé) sont à droite → favorisent la recommandation.
+            Les points bleus (Rating faible) sont à gauche → défavorisent.
+            Les autres variables ont une dispersion plus faible et plus centrée.
+          </div>
+        </div>
+        <div style='background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);
+                    border-radius:10px;padding:14px;'>
+          <div style='font-size:0.85em;font-weight:700;color:#67E8F9;margin-bottom:6px;'>
+             Résultat clé à retenir
+          </div>
+          <div style='font-size:0.78em;color:#6B7280;line-height:1.6;'>
+            Le Beeswarm confirme que le modèle fonctionne de manière
+            <strong style='color:#E8E8F0;'>cohérente et logique</strong> :
+            un Rating élevé augmente systématiquement la probabilité de recommandation,
+            et une Polarity positive pousse également vers la droite.
+            C'est exactement ce qu'on attendait d'un bon modèle sur ce dataset.
+          </div>
+        </div>
+      </div>
     </div>""", unsafe_allow_html=True)
 
     np.random.seed(42)
@@ -2394,19 +2510,18 @@ elif PAGE == 5:
     <div style='background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);
                 border-radius:10px;padding:14px 18px;margin-top:14px;'>
       <div style='font-size:0.82em;color:#9CA3AF;line-height:1.6;'>
-        <strong style='color:#6EE7B7;'>✅ Conclusion SHAP :</strong>
+        <strong style='color:#6EE7B7;'> Conclusion SHAP :</strong>
         Le <strong style='color:#E8E8F0;'>Rating</strong> domine massivement avec un score SHAP de 0.1907
         — soit <strong style='color:#8B5CF6;'>6× plus important</strong> que la 2ème variable (Polarity = 0.0312).
       </div>
     </div>""", unsafe_allow_html=True)
-
 # ══════════════════════════════════════════════════════════════
 #  PAGE 6 — VALEUR AJOUTÉE
 # ══════════════════════════════════════════════════════════════
 elif PAGE == 6:
     st.markdown("""
     <div style='padding:40px 0 24px 0;'>
-      <div class='hero-badge'>🚀 Business Intelligence</div>
+      <div class='hero-badge'> Business Intelligence</div>
       <div class='sec-title' style='font-size:2.2em;margin-top:10px;'>Valeur Ajoutée de l'IA</div>
       <div class='sec-sub'>Au-delà de la prédiction — comprendre, décider, optimiser</div>
     </div>""", unsafe_allow_html=True)
@@ -2424,26 +2539,35 @@ elif PAGE == 6:
     </div>""", unsafe_allow_html=True)
 
     vc1, vc2 = st.columns(2, gap="large")
-    for i, (clr, icon, title, desc, bullets) in enumerate([
-        ("#8B5CF6","🎯","Prédiction Expliquée",
+
+    # ✅ DATA CORRIGÉE
+    data_cards = [
+        ("#8B5CF6","📊","Prédiction Expliquée",
          "Chaque prédiction est accompagnée de l'importance des variables (SHAP).",
          ["SHAP Waterfall Plot","Impact par feature","Score de confiance"]),
+
         ("#06B6D4","📦","Intelligence Produit",
          "L'équipe produit identifie les caractéristiques des produits populaires.",
          ["Rating : corrélation 0.79","Sentiment positif clé","Longueur d'avis optimale"]),
-        ("#EC4899","📣","Stratégie Marketing",
+
+        ("#EC4899","📢","Stratégie Marketing",
          "Détecter les patterns entre catégories et popularité.",
          ["Analyse par département","Segmentation par âge","Optimisation des descriptions"]),
-        ("#F59E0B","🔄","Amélioration Continue",
+
+        ("#F59E0B","🔁","Amélioration Continue",
          "Le modèle peut être ré-entraîné avec de nouvelles données.",
          ["Mise à jour des modèles","Détection des dérives","A/B testing intégré"]),
-    ]):
+    ]
+
+    # ✅ BOUCLE FIX
+    for i, (clr, icon, title, desc, bullets) in enumerate(data_cards):
         col = vc1 if i % 2 == 0 else vc2
         with col:
             bl = "".join([
                 f"<div style='display:flex;gap:8px;padding:5px 0;font-size:0.83em;color:#9CA3AF;'>"
                 f"<span style='color:{clr};'>→</span>{b}</div>" for b in bullets
             ])
+
             st.markdown(f"""
             <div style='background:#12121A;border:1px solid rgba(42,42,62,0.8);border-radius:16px;
                         padding:24px;margin-bottom:16px;border-top:3px solid {clr};'>
@@ -2456,26 +2580,37 @@ elif PAGE == 6:
             </div>""", unsafe_allow_html=True)
 
     st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
+
     st.markdown("<div class='sec-title' style='font-size:1.5em;margin-bottom:8px;'>Insights Clés découverts</div>",
                 unsafe_allow_html=True)
     st.markdown("<div class='sec-sub'>Patterns identifiés grâce au ML + NLP dans le dataset</div>",
                 unsafe_allow_html=True)
 
     ig_c = st.columns(3)
-    for i, (clr, icon, title, desc) in enumerate([
-        ("#8B5CF6","⭐","97.8% des produits Rating 5 sont recommandés",
+
+    # ✅ DATA CORRIGÉE
+    insights_data = [
+        ("#8B5CF6","📈","97.8% des produits Rating 5 sont recommandés",
          "Le rating est le signal le plus fort — corrélation de 0.79 avec la cible."),
-        ("#10B981","💬","Les avis 30+ mots augmentent la probabilité",
+
+        ("#10B981","📝","Les avis 30+ mots augmentent la probabilité",
          "Une description longue et positive reflète un engagement client plus fort."),
-        ("#06B6D4","📊","Déséquilibre 82.6/17.4% géré avec stratify=y",
+
+        ("#06B6D4","⚖️","Déséquilibre 82.6/17.4% géré avec stratify=y",
          "Nécessite class_weight='balanced' pour un modèle équitable."),
-        ("#F59E0B","👥","Les clientes 34-41 ans sont les plus actives",
+
+        ("#F59E0B","👩","Les clientes 34-41 ans sont les plus actives",
          "Ce segment produit le plus de feedbacks positifs et de recommandations."),
-        ("#EC4899","🏷️","Les Tops et Dresses dominent les recommandations",
+
+        ("#EC4899","👗","Les Tops et Dresses dominent les recommandations",
          "Les produits de mode quotidienne reçoivent plus d'avis positifs."),
-        ("#A78BFA","🧠","La polarité TextBlob est le 2ème prédicteur",
+
+        ("#A78BFA","💬","La polarité TextBlob est le 2ème prédicteur",
          "L'analyse NLP du sentiment capture ce que le rating seul ne voit pas."),
-    ]):
+    ]
+
+    # ✅ BOUCLE FIX
+    for i, (clr, icon, title, desc) in enumerate(insights_data):
         with ig_c[i % 3]:
             st.markdown(f"""
             <div style='background:#12121A;border:1px solid #2A2A3E;border-radius:12px;
@@ -2491,7 +2626,7 @@ elif PAGE == 6:
 elif PAGE == 7:
     st.markdown("""
     <div style='padding:40px 0 24px 0;'>
-      <div class='hero-badge'>📈 Bilan Final</div>
+      <div class='hero-badge'> Bilan Final</div>
       <div class='sec-title' style='font-size:2.2em;margin-top:10px;'>Conclusion & Perspectives</div>
       <div class='sec-sub'>Résumé des résultats, limites identifiées et améliorations futures</div>
     </div>""", unsafe_allow_html=True)
@@ -2524,12 +2659,12 @@ elif PAGE == 7:
                     color:#10B981;letter-spacing:1px;margin-bottom:18px;'>✓ RÉSULTATS OBTENUS</div>""",
                     unsafe_allow_html=True)
         for icon, clr, title, desc in [
-            ("🏆","#10B981","Modèle performant","93.7% d'accuracy avec Random Forest optimisé."),
-            ("🧠","#8B5CF6","Feature Engineering efficace","Polarity et subjectivité = 2ème et 3ème variables (SHAP)."),
-            ("⚖️","#06B6D4","Déséquilibre bien géré","Stratify=y + class_weight maintiennent F1=82% sur la minorité."),
-            ("🔍","#EC4899","Explicabilité complète","SHAP Waterfall Plot explique chaque prédiction."),
-            ("🔬","#F59E0B","Non supervisé intégré","K-Means identifie 4 profils clients stratégiques."),
-            ("📱","#A78BFA","Interface complète","Streamlit avec 8 pages, historique et analyse temps réel."),
+            ("#10B981","Modèle performant","93.7% d'accuracy avec Random Forest optimisé."),
+            ("#8B5CF6","Feature Engineering efficace","Polarity et subjectivité = 2ème et 3ème variables (SHAP)."),
+            ("#06B6D4","Déséquilibre bien géré","Stratify=y + class_weight maintiennent F1=82% sur la minorité."),
+            ("#EC4899","Explicabilité complète","SHAP Waterfall Plot explique chaque prédiction."),
+            ("#F59E0B","Non supervisé intégré","K-Means identifie 4 profils clients stratégiques."),
+            ("#A78BFA","Interface complète","Streamlit avec 8 pages, historique et analyse temps réel."),
         ]:
             st.markdown(f"""
             <div class='concl-item'>
