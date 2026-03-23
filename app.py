@@ -465,6 +465,8 @@ if PAGE == 0:
             </div>""", unsafe_allow_html=True)
 
     st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
+
+    # ── LIGNE 1 : À propos | Technologies ────────────────────────────
     col_l, col_r = st.columns([1.1, 0.9], gap="large")
 
     with col_l:
@@ -516,23 +518,321 @@ if PAGE == 0:
             </div>""", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("""<div style='font-family:"Space Mono",monospace;font-size:0.68em;
-                    color:#8B5CF6;letter-spacing:1px;margin-bottom:12px;'>COLONNES DU DATASET</div>
-                    <div style='display:flex;flex-wrap:wrap;gap:8px;'>""", unsafe_allow_html=True)
-        badges = "".join([
-            f"<span style='background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);color:{c};"
-            f"padding:4px 10px;border-radius:20px;font-size:0.72em;font-family:\"Space Mono\",monospace;'>{n}</span>"
-            for n, c in [
-                ("Clothing ID","#8B5CF6"),("Age","#06B6D4"),("Title","#EC4899"),
-                ("Review Text","#F59E0B"),("Rating","#10B981"),("Recommended IND","#EF4444"),
-                ("Positive Feedback","#6366F1"),("Division Name","#F97316"),
-                ("Department Name","#34D399"),("Class Name","#A78BFA"),
-            ]
-        ])
-        st.markdown(badges + "</div></div>", unsafe_allow_html=True)
+    st.markdown("<div class='fancy-divider'></div>", unsafe_allow_html=True)
 
-# ══════════════════════════════════════════════════════════════
+    # ══════════════════════════════════════════════════════════════
+    # ── SECTION PLEINE LARGEUR : Colonnes du dataset ──────────────
+    # ══════════════════════════════════════════════════════════════
+    st.markdown("""
+    <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
+                letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;'>
+      ● Colonnes du dataset
+    </div>""", unsafe_allow_html=True)
+
+    # Mini stats
+    st.markdown("""
+    <div style='display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;'>
+      <div style='background:rgba(26,26,38,0.95);border:1px solid #2A2A3E;border-radius:12px;padding:16px;text-align:center;'>
+        <div style='font-family:"Space Mono",monospace;font-size:1.6em;font-weight:700;color:#8B5CF6;'>23 486</div>
+        <div style='font-size:0.75em;color:#6B7280;margin-top:4px;'>Avis clients</div>
+      </div>
+      <div style='background:rgba(26,26,38,0.95);border:1px solid #2A2A3E;border-radius:12px;padding:16px;text-align:center;'>
+        <div style='font-family:"Space Mono",monospace;font-size:1.6em;font-weight:700;color:#06B6D4;'>10</div>
+        <div style='font-size:0.75em;color:#6B7280;margin-top:4px;'>Colonnes</div>
+      </div>
+      <div style='background:rgba(26,26,38,0.95);border:1px solid #2A2A3E;border-radius:12px;padding:16px;text-align:center;'>
+        <div style='font-family:"Space Mono",monospace;font-size:1.6em;font-weight:700;color:#10B981;'>82.6%</div>
+        <div style='font-size:0.75em;color:#6B7280;margin-top:4px;'>Recommandés</div>
+      </div>
+      <div style='background:rgba(26,26,38,0.95);border:1px solid #2A2A3E;border-radius:12px;padding:16px;text-align:center;'>
+        <div style='font-family:"Space Mono",monospace;font-size:1.6em;font-weight:700;color:#F59E0B;'>3 526</div>
+        <div style='font-size:0.75em;color:#6B7280;margin-top:4px;'>Val. manquantes</div>
+      </div>
+    </div>""", unsafe_allow_html=True)
+
+    # ── Colonnes : chaque carte générée SÉPARÉMENT pour éviter le bug f-string ──
+    cols_data = [
+        ("Clothing ID",       "int64",        "Identifiant", "#8B5CF6",
+         "rgba(139,92,246,0.12)", "rgba(139,92,246,0.4)", False),
+        ("Age",               "int64",        "Numérique",   "#06B6D4",
+         "rgba(6,182,212,0.12)",  "rgba(6,182,212,0.4)",  False),
+        ("Title",             "object",       "Texte",       "#EC4899",
+         "rgba(236,72,153,0.12)", "rgba(236,72,153,0.4)", False),
+        ("Review Text",       "object",       "NLP",         "#F59E0B",
+         "rgba(245,158,11,0.12)", "rgba(245,158,11,0.4)", False),
+        ("Rating",            "int64 · 1–5",  "Numérique",   "#10B981",
+         "rgba(16,185,129,0.12)", "rgba(16,185,129,0.4)", False),
+        ("Recommended IND",   "int64 · 0/1",  "Target",      "#EF4444",
+         "rgba(239,68,68,0.15)",  "rgba(239,68,68,0.6)",  True),
+        ("Positive Feedback", "int64",        "Engagement",  "#6366F1",
+         "rgba(99,102,241,0.12)", "rgba(99,102,241,0.4)", False),
+        ("Division Name",     "object · 3",   "Catégoriel",  "#F97316",
+         "rgba(249,115,22,0.12)", "rgba(249,115,22,0.4)", False),
+        ("Department Name",   "object · 6",   "Catégoriel",  "#34D399",
+         "rgba(52,211,153,0.12)", "rgba(52,211,153,0.4)", False),
+        ("Class Name",        "object · 20",  "Catégoriel",  "#A78BFA",
+         "rgba(167,139,250,0.12)","rgba(167,139,250,0.4)",False),
+    ]
+
+    # On génère le HTML des 10 cartes EN UNE SEULE chaîne — sans f-string imbriquée
+    cards_html = (
+        "<div style='display:grid;grid-template-columns:repeat(5,1fr);"
+        "gap:14px;margin-bottom:22px;'>"
+    )
+
+    for name, dtype, badge, clr, bg_card_inner, bd_clr, is_target in cols_data:
+        top_bar_color = clr
+        border_col    = bd_clr if is_target else "#2A2A3E"
+        border_width  = "2px" if is_target else "1px"
+        dot_icon      = "" if is_target else ""
+        dot_circle    = (
+            "" if is_target else
+            "<div style='width:10px;height:10px;border-radius:50%;"
+            "background:" + clr + ";'></div>"
+        )
+        icon_bg = bg_card_inner
+
+        card = (
+            "<div style='background:rgba(26,26,38,0.95);"
+            "border:" + border_width + " solid " + border_col + ";"
+            "border-radius:14px;padding:18px 16px;"
+            "position:relative;overflow:hidden;'>"
+
+            # barre couleur top
+            "<div style='position:absolute;top:0;left:0;right:0;height:3px;"
+            "background:" + top_bar_color + ";'></div>"
+
+            # icône rond ou emoji
+            "<div style='width:38px;height:38px;border-radius:10px;"
+            "background:" + icon_bg + ";"
+            "border:1px solid " + bd_clr + ";"
+            "display:flex;align-items:center;justify-content:center;"
+            "margin-bottom:11px;font-size:1.1em;'>"
+            + dot_icon + dot_circle +
+            "</div>"
+
+            # nom colonne
+            "<div style='font-size:0.87em;font-weight:700;color:#E8E8F0;"
+            "margin-bottom:4px;line-height:1.3;'>" + name + "</div>"
+
+            # type
+            "<div style='font-family:\"Space Mono\",monospace;font-size:0.66em;"
+            "color:#6B7280;margin-bottom:9px;'>" + dtype + "</div>"
+
+            # badge
+            "<span style='display:inline-block;font-size:0.68em;padding:3px 10px;"
+            "border-radius:20px;background:" + icon_bg + ";"
+            "color:" + clr + ";border:1px solid " + bd_clr + ";"
+            "font-family:\"Space Mono\",monospace;font-weight:600;'>"
+            + badge +
+            "</span>"
+
+            "</div>"
+        )
+        cards_html += card
+
+    cards_html += "</div>"
+    st.markdown(cards_html, unsafe_allow_html=True)
+
+    # ── Barre distribution variable cible ────────────────────────
+    st.markdown("""
+    <div style='background:rgba(26,26,38,0.95);border:1px solid #2A2A3E;
+                border-radius:14px;padding:18px 24px;margin-bottom:24px;'>
+      <div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;'>
+        <div style='font-family:"Space Mono",monospace;font-size:0.75em;
+                    font-weight:600;color:#E8E8F0;'>
+          Distribution — Variable Cible (Recommended IND)
+        </div>
+        <div style='font-family:"Space Mono",monospace;font-size:0.65em;color:#6B7280;'>
+          23 486 avis · Déséquilibre 82/18
+        </div>
+      </div>
+      <div style='height:10px;background:#1A1A26;border-radius:6px;
+                  overflow:hidden;display:flex;'>
+        <div style='width:82.6%;background:linear-gradient(90deg,#8B5CF6,#EC4899);
+                    border-radius:6px 0 0 6px;'></div>
+        <div style='width:17.4%;background:#EF4444;
+                    border-radius:0 6px 6px 0;'></div>
+      </div>
+      <div style='display:flex;justify-content:space-between;margin-top:8px;'>
+        <span style='font-family:"Space Mono",monospace;font-size:0.72em;color:#8B5CF6;
+                     display:flex;align-items:center;gap:6px;'>
+          <span style='width:8px;height:8px;border-radius:50%;background:#8B5CF6;
+                       display:inline-block;'></span>
+          82.6% — Recommandé (1) · 19 342 avis
+        </span>
+        <span style='font-family:"Space Mono",monospace;font-size:0.72em;color:#EF4444;
+                     display:flex;align-items:center;gap:6px;'>
+          17.4% — Non recommandé (0) · 4 144 avis
+          <span style='width:8px;height:8px;border-radius:50%;background:#EF4444;
+                       display:inline-block;'></span>
+        </span>
+      </div>
+    </div>""", unsafe_allow_html=True)
+
+    # ══════════════════════════════════════════════════════════════
+    # ── TABLEAU df.head(5) — pleine largeur ───────────────────────
+    # ══════════════════════════════════════════════════════════════
+    st.markdown("""
+    <div style='font-family:"Space Mono",monospace;font-size:0.68em;color:#8B5CF6;
+                letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;'>
+      ● Aperçu du dataset — df.head(5)
+    </div>""", unsafe_allow_html=True)
+
+    overview_rows = [
+        (0, 767,  33, 4, 1, 0,  "Initmates",   "Intimate", "Intimates",
+         "Absolutely wonderful - silky and sexy and comfortable..."),
+        (1, 1080, 34, 5, 1, 4,  "General",     "Dresses",  "Dresses",
+         "Love this dress! it's sooo pretty. i happened to find it..."),
+        (2, 1077, 60, 3, 0, 0,  "General",     "Dresses",  "Dresses",
+         "I had such high hopes for this dress and really wanted it..."),
+        (3, 1049, 50, 5, 1, 0,  "Gen. Petite", "Bottoms",  "Pants",
+         "I love, love, love this jumpsuit. it's fun, flirty and..."),
+        (4, 847,  47, 5, 1, 6,  "General",     "Tops",     "Blouses",
+         "This shirt is very flattering to all due to the adjustable..."),
+    ]
+
+    stars    = {1:"★", 2:"★★", 3:"★★★", 4:"★★★★", 5:"★★★★★"}
+    star_clr = {5:"#F59E0B", 4:"#F59E0B", 3:"#EF4444", 2:"#EF4444", 1:"#EF4444"}
+
+    # Header du tableau
+    table_html = """
+    <div style='background:rgba(26,26,38,0.95);border:1px solid #2A2A3E;
+                border-radius:16px;overflow:hidden;position:relative;margin-bottom:8px;'>
+      <div style='position:absolute;top:0;left:0;right:0;height:3px;
+                  background:linear-gradient(90deg,#8B5CF6,#EC4899,#06B6D4);'></div>
+      <div style='padding:16px 20px 12px;border-bottom:1px solid rgba(42,42,62,0.6);
+                  display:flex;align-items:center;justify-content:space-between;'>
+        <div>
+          <div style='font-family:"Space Mono",monospace;font-size:0.80em;font-weight:600;
+                      color:#E8E8F0;letter-spacing:0.5px;'>
+            Women's Clothing E-Commerce Reviews Dataset
+          </div>
+          <div style='font-size:0.75em;color:#6B7280;margin-top:3px;'>
+            Avis clients sur des vetements feminins — variable cible : Recommended IND
+          </div>
+        </div>
+        <div style='font-family:"Space Mono",monospace;font-size:0.72em;color:#10B981;
+                    background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);
+                    padding:5px 14px;border-radius:20px;white-space:nowrap;'>
+          23 486 lignes · 11 colonnes
+        </div>
+      </div>
+      <div style='overflow-x:auto;'>
+        <table style='width:100%;border-collapse:collapse;font-size:0.87em;'>
+          <thead>
+            <tr style='background:rgba(18,18,26,0.95);'>
+              <th style='padding:11px 16px;text-align:left;color:#8B5CF6;font-family:"Space Mono",monospace;font-size:0.80em;border-bottom:1px solid #2A2A3E;'>#</th>
+              <th style='padding:11px 16px;text-align:left;color:#8B5CF6;font-family:"Space Mono",monospace;font-size:0.80em;border-bottom:1px solid #2A2A3E;white-space:nowrap;'>Clothing ID</th>
+              <th style='padding:11px 16px;text-align:left;color:#8B5CF6;font-family:"Space Mono",monospace;font-size:0.80em;border-bottom:1px solid #2A2A3E;'>Age</th>
+              <th style='padding:11px 16px;text-align:left;color:#8B5CF6;font-family:"Space Mono",monospace;font-size:0.80em;border-bottom:1px solid #2A2A3E;'>Rating</th>
+              <th style='padding:11px 16px;text-align:left;color:#8B5CF6;font-family:"Space Mono",monospace;font-size:0.80em;border-bottom:1px solid #2A2A3E;'>Recommended</th>
+              <th style='padding:11px 16px;text-align:left;color:#8B5CF6;font-family:"Space Mono",monospace;font-size:0.80em;border-bottom:1px solid #2A2A3E;white-space:nowrap;'>Feedback +</th>
+              <th style='padding:11px 16px;text-align:left;color:#8B5CF6;font-family:"Space Mono",monospace;font-size:0.80em;border-bottom:1px solid #2A2A3E;'>Division</th>
+              <th style='padding:11px 16px;text-align:left;color:#8B5CF6;font-family:"Space Mono",monospace;font-size:0.80em;border-bottom:1px solid #2A2A3E;'>Department</th>
+              <th style='padding:11px 16px;text-align:left;color:#8B5CF6;font-family:"Space Mono",monospace;font-size:0.80em;border-bottom:1px solid #2A2A3E;'>Class</th>
+              <th style='padding:11px 16px;text-align:left;color:#8B5CF6;font-family:"Space Mono",monospace;font-size:0.80em;border-bottom:1px solid #2A2A3E;'>Review Text</th>
+            </tr>
+          </thead>
+          <tbody>"""
+
+    # Lignes du tableau
+    for row_data in overview_rows:
+        idx, cloth_id, age, rating, rec, fb, div_n, dept, cls, review = row_data
+
+        if rec == 1:
+            rec_html = (
+                "<span style='display:inline-flex;align-items:center;"
+                "justify-content:center;width:28px;height:28px;border-radius:50%;"
+                "background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.5);"
+                "color:#10B981;font-weight:700;font-size:0.9em;'>✓</span>"
+            )
+        else:
+            rec_html = (
+                "<span style='display:inline-flex;align-items:center;"
+                "justify-content:center;width:28px;height:28px;border-radius:50%;"
+                "background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.5);"
+                "color:#EF4444;font-weight:700;font-size:0.9em;'>✗</span>"
+            )
+
+        sc      = star_clr[rating]
+        row_bg  = "rgba(239,68,68,0.03)" if rec == 0 else "transparent"
+        stars_s = stars[rating]
+
+        table_html += (
+            "<tr style='border-bottom:1px solid rgba(42,42,62,0.3);"
+            "background:" + row_bg + ";'>"
+
+            "<td style='padding:13px 16px;color:#4B5563;"
+            "font-family:\"Space Mono\",monospace;font-size:0.85em;'>"
+            + str(idx) + "</td>"
+
+            "<td style='padding:13px 16px;color:#06B6D4;"
+            "font-family:\"Space Mono\",monospace;font-weight:600;'>"
+            + str(cloth_id) + "</td>"
+
+            "<td style='padding:13px 16px;color:#06B6D4;"
+            "font-family:\"Space Mono\",monospace;'>"
+            + str(age) + "</td>"
+
+            "<td style='padding:13px 16px;color:" + sc + ";"
+            "font-family:\"Space Mono\",monospace;white-space:nowrap;font-weight:600;'>"
+            + stars_s + " " + str(rating) + "</td>"
+
+            "<td style='padding:13px 16px;'>" + rec_html + "</td>"
+
+            "<td style='padding:13px 16px;color:#06B6D4;"
+            "font-family:\"Space Mono\",monospace;'>"
+            + str(fb) + "</td>"
+
+            "<td style='padding:13px 16px;color:#EC4899;font-weight:500;'>"
+            + div_n + "</td>"
+
+            "<td style='padding:13px 16px;color:#9CA3AF;'>"
+            + dept + "</td>"
+
+            "<td style='padding:13px 16px;color:#A78BFA;font-weight:500;'>"
+            + cls + "</td>"
+
+            "<td style='padding:13px 16px;color:#6B7280;max-width:260px;"
+            "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+            "font-style:italic;'>"
+            + review + "</td>"
+
+            "</tr>"
+        )
+
+    # Footer du tableau
+    table_html += """
+          </tbody>
+        </table>
+      </div>
+      <div style='padding:11px 20px;border-top:1px solid rgba(42,42,62,0.4);
+                  display:flex;align-items:center;gap:20px;flex-wrap:wrap;'>
+        <span style='display:flex;align-items:center;gap:6px;
+                     font-size:0.75em;color:#6B7280;'>
+          <span style='width:8px;height:8px;border-radius:50%;background:#10B981;
+                       display:inline-block;flex-shrink:0;'></span>Recommande (1)
+        </span>
+        <span style='display:flex;align-items:center;gap:6px;
+                     font-size:0.75em;color:#6B7280;'>
+          <span style='width:8px;height:8px;border-radius:50%;background:#EF4444;
+                       display:inline-block;flex-shrink:0;'></span>Non recommande (0)
+        </span>
+        <span style='display:flex;align-items:center;gap:6px;
+                     font-size:0.75em;color:#6B7280;'>
+          <span style='width:8px;height:8px;border-radius:50%;background:#F59E0B;
+                       display:inline-block;flex-shrink:0;'></span>Rating 1-5
+        </span>
+        <span style='margin-left:auto;font-family:"Space Mono",monospace;
+                     font-size:0.68em;color:#4B5563;'>
+          df.shape : (23 486, 11)
+        </span>
+      </div>
+    </div>"""
+
+    st.markdown(table_html, unsafe_allow_html=True)
+    # ══════════════════════════════════════════════════════════════
 #  PAGE 1 — EDA
 # ══════════════════════════════════════════════════════════════
 elif PAGE == 1:
@@ -650,7 +950,7 @@ elif PAGE == 1:
 elif PAGE == 2:
     st.markdown("""
     <div style='padding:40px 0 24px 0;'>
-      <div class='hero-badge'>🤖 Machine Learning</div>
+      <div class='hero-badge'> Machine Learning</div>
       <div class='sec-title' style='font-size:2.2em;margin-top:10px;'>Modélisation & Performances</div>
       <div class='sec-sub'>3 modèles · Cross-Validation · GridSearchCV / RandomizedSearchCV · Avant vs Après optimisation</div>
     </div>""", unsafe_allow_html=True)
@@ -2640,68 +2940,101 @@ elif PAGE == 7:
       <div style='color:#6B7280;margin-bottom:24px;font-size:0.88em;'>RandomizedSearchCV · n_estimators=100 · max_depth=10 · max_features='log2'</div>
       <div style='display:flex;justify-content:center;gap:36px;flex-wrap:wrap;'>
     """, unsafe_allow_html=True)
+
+    # ✅ METRICS
     m_html = ""
     for val, lbl, clr in [
-        ("93.7%","Accuracy","#8B5CF6"),("97.2%","Precision","#06B6D4"),
-        ("94.5%","Recall","#10B981"),  ("96.2%","F1-Score","#EC4899"),("96.01%","CV F1","#F59E0B"),
+        ("93.7%","Accuracy","#8B5CF6"),
+        ("97.2%","Precision","#06B6D4"),
+        ("94.5%","Recall","#10B981"),
+        ("96.2%","F1-Score","#EC4899"),
+        ("96.01%","CV F1","#F59E0B"),
     ]:
         m_html += f"""
         <div style='text-align:center;'>
           <div style='font-family:"Space Mono",monospace;font-size:1.8em;font-weight:700;color:{clr};'>{val}</div>
           <div style='color:#6B7280;font-size:0.8em;margin-top:4px;'>{lbl}</div>
         </div>"""
+
     st.markdown(m_html + "</div></div>", unsafe_allow_html=True)
 
+    # ================= COLUMNS =================
     cl, crr = st.columns(2, gap="large")
+
+    # ================= RÉSULTATS =================
     with cl:
         st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("""<div style='font-family:"Space Mono",monospace;font-size:0.68em;
-                    color:#10B981;letter-spacing:1px;margin-bottom:18px;'>✓ RÉSULTATS OBTENUS</div>""",
-                    unsafe_allow_html=True)
-        for icon, clr, title, desc in [
-            ("#10B981","Modèle performant","93.7% d'accuracy avec Random Forest optimisé."),
-            ("#8B5CF6","Feature Engineering efficace","Polarity et subjectivité = 2ème et 3ème variables (SHAP)."),
-            ("#06B6D4","Déséquilibre bien géré","Stratify=y + class_weight maintiennent F1=82% sur la minorité."),
-            ("#EC4899","Explicabilité complète","SHAP Waterfall Plot explique chaque prédiction."),
-            ("#F59E0B","Non supervisé intégré","K-Means identifie 4 profils clients stratégiques."),
-            ("#A78BFA","Interface complète","Streamlit avec 8 pages, historique et analyse temps réel."),
-        ]:
+        st.markdown("""
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;
+                    color:#10B981;letter-spacing:1px;margin-bottom:18px;'>✓ RÉSULTATS OBTENUS</div>
+        """, unsafe_allow_html=True)
+
+        results_data = [
+            ("✅","#10B981","Modèle performant","93.7% d'accuracy avec Random Forest optimisé."),
+            ("🧠","#8B5CF6","Feature Engineering efficace","Polarity et subjectivité = 2ème et 3ème variables (SHAP)."),
+            ("⚖️","#06B6D4","Déséquilibre bien géré","Stratify=y + class_weight maintiennent F1=82% sur la minorité."),
+            ("📊","#EC4899","Explicabilité complète","SHAP Waterfall Plot explique chaque prédiction."),
+            ("🔍","#F59E0B","Non supervisé intégré","K-Means identifie 4 profils clients stratégiques."),
+            ("💻","#A78BFA","Interface complète","Streamlit avec 8 pages, historique et analyse temps réel."),
+        ]
+
+        for icon, clr, title, desc in results_data:
             st.markdown(f"""
             <div class='concl-item'>
               <div class='concl-icon' style='border:1px solid rgba(139,92,246,0.2);color:{clr};'>{icon}</div>
-              <div class='concl-text'><h4>{title}</h4><p>{desc}</p></div>
+              <div class='concl-text'>
+                <h4>{title}</h4>
+                <p>{desc}</p>
+              </div>
             </div>""", unsafe_allow_html=True)
+
         st.markdown("</div>", unsafe_allow_html=True)
 
+    # ================= LIMITES + AMÉLIORATIONS =================
     with crr:
+
+        # ===== LIMITES =====
         st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("""<div style='font-family:"Space Mono",monospace;font-size:0.68em;
-                    color:#EF4444;letter-spacing:1px;margin-bottom:18px;'>△ LIMITES IDENTIFIÉES</div>""",
-                    unsafe_allow_html=True)
-        for icon, clr, title, desc in [
+        st.markdown("""
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;
+                    color:#EF4444;letter-spacing:1px;margin-bottom:18px;'>△ LIMITES IDENTIFIÉES</div>
+        """, unsafe_allow_html=True)
+
+        limits_data = [
             ("⚠️","#EF4444","Déséquilibre des classes (82/18)","Le modèle est naturellement biaisé vers la classe majoritaire."),
             ("⚠️","#F97316","Texte en anglais seulement","TextBlob ne supporte pas bien le multilingue."),
             ("⚠️","#F59E0B","Données statiques","Le modèle ne s'adapte pas sans re-entraînement."),
             ("⚠️","#A78BFA","Features catégorielles faibles","SHAP montre que Division/Department ont un impact marginal."),
-        ]:
+        ]
+
+        for icon, clr, title, desc in limits_data:
             st.markdown(f"""
             <div class='concl-item'>
               <div class='concl-icon' style='border:1px solid rgba(239,68,68,0.2);color:{clr};'>{icon}</div>
-              <div class='concl-text'><h4>{title}</h4><p>{desc}</p></div>
+              <div class='concl-text'>
+                <h4>{title}</h4>
+                <p>{desc}</p>
+              </div>
             </div>""", unsafe_allow_html=True)
+
         st.markdown("</div>", unsafe_allow_html=True)
 
+        # ===== AMÉLIORATIONS =====
         st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("""<div style='font-family:"Space Mono",monospace;font-size:0.68em;
-                    color:#8B5CF6;letter-spacing:1px;margin-bottom:18px;'>🚀 AMÉLIORATIONS FUTURES</div>""",
-                    unsafe_allow_html=True)
-        for clr, title, desc in [
+        st.markdown("""
+        <div style='font-family:"Space Mono",monospace;font-size:0.68em;
+                    color:#8B5CF6;letter-spacing:1px;margin-bottom:18px;'>🚀 AMÉLIORATIONS FUTURES</div>
+        """, unsafe_allow_html=True)
+
+        improvements_data = [
             ("#8B5CF6","Deep Learning / BERT","Transformers pour une meilleure compréhension du texte."),
             ("#06B6D4","Déploiement Cloud","AWS / GCP avec pipeline MLOps et monitoring de dérive."),
             ("#10B981","Données multilingues","Extension avec mBERT ou XLM-RoBERTa."),
             ("#F59E0B","API REST en temps réel","Intégration directe dans les plateformes e-commerce."),
             ("#EC4899","SMOTE / Oversampling","Pour mieux gérer le déséquilibre des classes."),
-        ]:
+        ]
+
+        for clr, title, desc in improvements_data:
             st.markdown(f"""
             <div style='display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(42,42,62,0.4);'>
               <div style='width:8px;height:8px;border-radius:50%;background:{clr};margin-top:6px;flex-shrink:0;'></div>
@@ -2710,8 +3043,10 @@ elif PAGE == 7:
                 <div style='font-size:0.78em;color:#6B7280;margin-top:2px;'>{desc}</div>
               </div>
             </div>""", unsafe_allow_html=True)
+
         st.markdown("</div>", unsafe_allow_html=True)
 
+    # ================= FOOTER =================
     st.markdown("""
     <div style='background:linear-gradient(135deg,rgba(139,92,246,0.05),rgba(236,72,153,0.03));
                 border:1px solid #2A2A3E;border-radius:16px;padding:32px;text-align:center;margin-top:28px;'>
@@ -2720,6 +3055,6 @@ elif PAGE == 7:
         "Le Machine Learning ne remplace pas le jugement humain —<br>il l'augmente avec des données."
       </div>
       <div style='color:#374151;font-family:"Space Mono",monospace;font-size:0.72em;letter-spacing:1px;'>
-        BSDSI 2025-2026 &nbsp;·&nbsp; BEN ZHIR Wafa &nbsp;·&nbsp; IKSOD Salma &nbsp;·&nbsp; Enc. AIT BAHA Tarek
+        BSDSI 2025-2026 · BEN ZHIR Wafa · IKSOD Salma · Enc. AIT BAHA Tarek
       </div>
     </div>""", unsafe_allow_html=True)
