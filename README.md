@@ -16,6 +16,12 @@
 Réalisé par : **BEN ZHIR Wafa** ([BenWafae](https://github.com/BenWafae)) · **IKSOD Salma** ([salmaIKSOD](https://github.com/salmaIKSOD))  
 Encadré par : **AIT BAHA Tarek**
 
+### 🚀 Live Demo
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://shopsense-ecommerce.streamlit.app)
+
+> Cliquez sur le badge pour tester l'application en temps réel — aucune installation requise.
+
 </div>
 
 ---
@@ -341,7 +347,7 @@ predict() + predict_proba() → résultat + probabilité
 | Analyse textuelle basique (TextBlob) | Utiliser un modèle BERT ou TF-IDF avancé |
 | Texte en anglais seulement | Extension multilingue avec mBERT ou XLM-RoBERTa |
 | Données statiques | Pipeline MLOps avec re-entraînement automatique |
-| Déploiement local uniquement | Déploiement cloud AWS / GCP |
+| Déploiement local uniquement | ✅ Déployé sur Streamlit Cloud |
 
 ---
 
@@ -358,10 +364,7 @@ predict() + predict_proba() → résultat + probabilité
 Chaque contributrice travaille sur sa branche, puis intègre les modifications via les commandes suivantes :
 
 ```bash
-# Récupérer les dernières modifications du dépôt distant
 git fetch origin
-
-# Intégrer la branche de l'autre contributrice
 git merge origin/iksodsalma
 # ou
 git merge origin/benzhirWafa
