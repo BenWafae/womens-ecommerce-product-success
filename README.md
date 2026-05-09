@@ -16,7 +16,7 @@
 Réalisé par : **BEN ZHIR Wafa** ([BenWafae](https://github.com/BenWafae)) · **IKSOD Salma** ([salmaIKSOD](https://github.com/salmaIKSOD))  
 Encadré par : **AIT BAHA Tarek**
 
-### 🚀 Live Demo
+### Live Demo
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://shopsense-ecommerce.streamlit.app)
 
