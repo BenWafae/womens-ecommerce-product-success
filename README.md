@@ -341,13 +341,17 @@ predict() + predict_proba() → résultat + probabilité
 
 ## 📸 Screenshots
 
-| Accueil & KPIs | Modélisation ML |
-|---|---|
-| ![Accueil](screenshots/streamlit1.png) | ![Modélisation](screenshots/streamlit2.png) |
+**🏠 Accueil & KPIs**
+![Accueil](screenshots/streamlit1.png)
 
-| Prédiction en temps réel | Explication SHAP |
-|---|---|
-| ![Prédiction](screenshots/streamlit3.png) | ![SHAP](screenshots/streamlit4.png) |
+** Modélisation ML**
+![Modélisation](screenshots/streamlit2.png)
+
+** Prédiction en temps réel**
+![Prédiction](screenshots/streamlit3.png)
+
+** Explication SHAP**
+![SHAP](screenshots/streamlit4.png)
 
 ---
 
