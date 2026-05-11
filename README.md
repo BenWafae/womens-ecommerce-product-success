@@ -16,7 +16,7 @@
 Réalisé par : **BEN ZHIR Wafa** ([BenWafae](https://github.com/BenWafae)) · **IKSOD Salma** ([salmaIKSOD](https://github.com/salmaIKSOD))  
 Encadré par : **AIT BAHA Tarek**
 
-### Live Demo
+### 🚀 Live Demo
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://shopsense-ecommerce.streamlit.app)
 
@@ -336,6 +336,18 @@ predict() + predict_proba() → résultat + probabilité
 | 4 | "neutre" | 0 | ✅ Recommandé | 87% |
 
 > Le modèle reflète fidèlement les données réelles : 85.3% des produits avec Rating 4 sont recommandés dans le dataset.
+
+---
+
+## 📸 Screenshots
+
+| Accueil & KPIs | Modélisation ML |
+|---|---|
+| ![Accueil](screenshots/streamlit1.png) | ![Modélisation](screenshots/streamlit2.png) |
+
+| Prédiction en temps réel | Explication SHAP |
+|---|---|
+| ![Prédiction](screenshots/streamlit3.png) | ![SHAP](screenshots/streamlit4.png) |
 
 ---
 
