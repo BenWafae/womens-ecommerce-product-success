@@ -342,7 +342,7 @@ predict() + predict_proba() → résultat + probabilité
 ## 📸 Screenshots
 
 **🏠 Accueil & KPIs**
-![Accueil](screenshots/streamlit1.png)
+![Accueil](screenshots/streamlit 1.png)
 
 ** Modélisation ML**
 ![Modélisation](screenshots/streamlit2.png)
